@@ -13,10 +13,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public class RatbotEyesLayer extends RenderLayer<RatlanteanRatbot, RatlanteanRatbotModel<RatlanteanRatbot>> {
-	private static final RenderType TEXTURE_EYES_0 = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_0.png"));
-	private static final RenderType TEXTURE_EYES_1 = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_1.png"));
-	private static final RenderType TEXTURE_EYES_2 = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_2.png"));
-	private static final RenderType TEXTURE_EYES_3 = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_3.png"));
+	private static final RenderType TEXTURE_EYES_0 = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_0.png"));
+	private static final RenderType TEXTURE_EYES_1 = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_1.png"));
+	private static final RenderType TEXTURE_EYES_2 = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_2.png"));
+	private static final RenderType TEXTURE_EYES_3 = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ratlantean_ratbot/ratlantean_ratbot_eyes_3.png"));
 
 	public RatbotEyesLayer(RenderLayerParent<RatlanteanRatbot, RatlanteanRatbotModel<RatlanteanRatbot>> parent) {
 		super(parent);
@@ -25,7 +25,7 @@ public class RatbotEyesLayer extends RenderLayer<RatlanteanRatbot, RatlanteanRat
 	@Override
 	public void render(PoseStack stack, MultiBufferSource buffer, int light, RatlanteanRatbot entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 		VertexConsumer consumer = buffer.getBuffer(this.getTextureForTick(entity.tickCount * 3));
-		this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+		this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, -1);
 	}
 
 	private RenderType getTextureForTick(int tickCount) {

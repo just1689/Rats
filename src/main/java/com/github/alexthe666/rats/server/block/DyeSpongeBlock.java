@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
 
 public class DyeSpongeBlock extends Block {
 
@@ -18,7 +19,7 @@ public class DyeSpongeBlock extends Block {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter getter, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext getter, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable(this.getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
 	}
 }

@@ -25,9 +25,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.portal.DimensionTransition;
+import com.mojang.serialization.MapCodec;
 
 @SuppressWarnings("deprecation")
 public class RatlantisPortalBlock extends BaseEntityBlock implements CustomItemRarity {
+
+	public static final MapCodec<RatlantisPortalBlock> CODEC = simpleCodec(RatlantisPortalBlock::new);
+
+	@Override
+	protected MapCodec<RatlantisPortalBlock> codec() {
+		return CODEC;
+	}
 
 	public RatlantisPortalBlock(BlockBehaviour.Properties properties) {
 		super(properties);
@@ -46,21 +55,21 @@ public class RatlantisPortalBlock extends BaseEntityBlock implements CustomItemR
 	@Override
 	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
 		if (RatsMod.RATLANTIS_DATAPACK_ENABLED) {
-			if (!entity.isPassenger() && !entity.isVehicle() && entity.canChangeDimensions()) {
+			if (!entity.isPassenger() && !entity.isVehicle() && entity.canChangeDimensions(level, level)) {
 				if (entity.isOnPortalCooldown()) {
 					entity.setPortalCooldown();
 				} else {
-					if (!entity.level().isClientSide() && !pos.equals(entity.portalEntrancePos)) {
-						entity.portalEntrancePos = pos.immutable();
-					}
 					MinecraftServer server = entity.level().getServer();
 					ResourceKey<Level> destination = entity.level().dimension() == RatlantisDimensionRegistry.DIMENSION_KEY ? Level.OVERWORLD : RatlantisDimensionRegistry.DIMENSION_KEY;
 					if (server != null) {
 						ServerLevel dest = server.getLevel(destination);
-						if (dest != null && server.isNetherEnabled() && !entity.isPassenger()) {
+						if (dest != null && server.isLevelEnabled(dest) && !entity.isPassenger()) {
 							entity.level().getProfiler().push("ratlantis_portal");
 							entity.setPortalCooldown();
-							entity.changeDimension(dest, new RatlantisTeleporter(dest));
+							DimensionTransition transition = new RatlantisTeleporter(dest).createTransition(entity);
+							if (transition != null) {
+								entity.changeDimension(transition);
+							}
 							entity.setDeltaMovement(Vec3.ZERO);
 							entity.level().getProfiler().pop();
 						}
@@ -107,7 +116,7 @@ public class RatlantisPortalBlock extends BaseEntityBlock implements CustomItemR
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

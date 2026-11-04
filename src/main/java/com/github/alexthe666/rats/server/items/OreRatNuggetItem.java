@@ -22,6 +22,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import com.github.alexthe666.rats.registry.RatsDataComponentRegistry;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 public class OreRatNuggetItem extends Item {
 
@@ -44,9 +48,9 @@ public class OreRatNuggetItem extends Item {
 	}
 
 	public static ItemStack getStoredItem(ItemStack poopItem, ItemStack fallback) {
-		if (poopItem.getOrCreateTag().contains("OreItem")) {
-			CompoundTag poopTag = poopItem.getOrCreateTag().getCompound("OreItem");
-			ItemStack oreItem = ItemStack.of(poopTag);
+		ItemContainerContents contents = poopItem.get(RatsDataComponentRegistry.ORE_ITEM.get());
+		if (contents != null) {
+			ItemStack oreItem = contents.copyOne();
 			if (oreItem.isEmpty()) {
 				return fallback;
 			} else {
@@ -57,8 +61,7 @@ public class OreRatNuggetItem extends Item {
 	}
 
 	public static ItemStack getIngot(Level level, ItemStack stack) {
-		Container container = new SimpleContainer(stack);
-		SmeltingRecipe recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, container, level).orElse(null);
+		SmeltingRecipe recipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(stack), level).map(RecipeHolder::value).orElse(null);
 		if (recipe != null && !recipe.getResultItem(level.registryAccess()).isEmpty()) {
 			return recipe.getResultItem(level.registryAccess()).copy();
 		}
@@ -67,16 +70,12 @@ public class OreRatNuggetItem extends Item {
 
 	public static ItemStack saveResourceToNugget(ItemStack resource) {
 		ItemStack stack = new ItemStack(RatsItemRegistry.RAT_NUGGET_ORE.get());
-		CompoundTag nuggetTag = new CompoundTag();
-		CompoundTag oreTag = new CompoundTag();
-		resource.save(oreTag);
-		nuggetTag.put("OreItem", oreTag);
-		stack.setTag(nuggetTag);
+		stack.set(RatsDataComponentRegistry.ORE_ITEM.get(), ItemContainerContents.fromItems(List.of(resource.copy())));
 		return stack;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		if (flag.isCreative()) {
 			ItemStack ingot = getStoredItem(stack, new ItemStack(Items.AIR));
 			tooltip.add(Component.translatable(RatsLangConstants.ORE_NUGGET_CONTAINS, ingot.getDisplayName().getString()).withStyle(ChatFormatting.GRAY));

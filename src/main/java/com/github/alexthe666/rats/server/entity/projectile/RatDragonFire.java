@@ -12,6 +12,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class RatDragonFire extends Fireball {
 
@@ -20,7 +22,7 @@ public class RatDragonFire extends Fireball {
 	}
 
 	public RatDragonFire(EntityType<? extends Fireball> type, LivingEntity shooter, Level level, double accelX, double accelY, double accelZ) {
-		super(type, shooter, accelX, accelY, accelZ, level);
+		super(type, shooter, new Vec3(accelX, accelY, accelZ), level);
 	}
 
 	@Override
@@ -64,10 +66,12 @@ public class RatDragonFire extends Fireball {
 	protected void onHitEntity(EntityHitResult result) {
 		Entity entity = result.getEntity();
 		if (!entity.fireImmune()) {
-			entity.setSecondsOnFire(10);
+			entity.igniteForSeconds(10);
 			boolean flag = entity.hurt(this.damageSources().fireball(this, this.getOwner()), 5.0F);
 			if (flag && this.getOwner() instanceof LivingEntity living) {
-				this.doEnchantDamageEffects(living, entity);
+				if (this.level() instanceof ServerLevel enchantLevel) {
+			EnchantmentHelper.doPostAttackEffects(enchantLevel, entity, this.damageSources().mobAttack(living));
+		}
 			}
 
 			if (!this.level().isClientSide()) {

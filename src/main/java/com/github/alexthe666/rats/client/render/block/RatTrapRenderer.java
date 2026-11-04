@@ -18,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class RatTrapRenderer implements BlockEntityRenderer<RatTrapBlockEntity> {
 	private static final RatTrapModel<?> MODEL_RAT_TRAP = new RatTrapModel<>();
-	private static final RenderType TEXTURE = RenderType.entityCutout(new ResourceLocation(RatsMod.MODID, "textures/block/rat_trap.png"));
+	private static final RenderType TEXTURE = RenderType.entityCutout(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/block/rat_trap.png"));
 
 	public RatTrapRenderer(BlockEntityRendererProvider.Context context) {
 	}
@@ -40,7 +40,7 @@ public class RatTrapRenderer implements BlockEntityRenderer<RatTrapBlockEntity> 
 		stack.mulPose(Axis.YP.rotationDegrees(rotation));
 		VertexConsumer consumer = buffer.getBuffer(TEXTURE);
 		MODEL_RAT_TRAP.animateHinge(shutProgress);
-		MODEL_RAT_TRAP.renderToBuffer(stack, consumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+		MODEL_RAT_TRAP.renderToBuffer(stack, consumer, light, overlay, -1);
 		if (!bait.isEmpty()) {
 			stack.scale(0.4F, 0.4F, 0.4F);
 			stack.translate(0, 3.4F, -0.5F);

@@ -14,7 +14,6 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.network.NetworkHooks;
 
 public class PiratWoodBoat extends Boat {
 
@@ -49,9 +48,9 @@ public class PiratWoodBoat extends Boat {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(BOAT_TYPE, Type.PIRAT.ordinal());
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(BOAT_TYPE, Type.PIRAT.ordinal());
 	}
 
 	@Override
@@ -64,11 +63,6 @@ public class PiratWoodBoat extends Boat {
 		if (tag.contains("Type", 8)) {
 			this.setTwilightBoatType(Type.getTypeFromString(tag.getString("Type")));
 		}
-	}
-
-	@Override
-	public Packet<ClientGamePacketListener> getAddEntityPacket() {
-		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 
 	public enum Type {

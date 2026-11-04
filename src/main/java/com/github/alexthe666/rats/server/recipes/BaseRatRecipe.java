@@ -10,8 +10,8 @@ import net.minecraft.world.item.crafting.SingleItemRecipe;
 //pain pain pain pain PAINNNNNNNNN
 //getResultItem needs RegistryAccess, I cant use that in the serializer. Hate
 public abstract class BaseRatRecipe extends SingleItemRecipe {
-	public BaseRatRecipe(RecipeType<?> type, RecipeSerializer<?> serializer, ResourceLocation id, String group, Ingredient input, ItemStack output) {
-		super(type, serializer, id, group, input, output);
+	public BaseRatRecipe(RecipeType<?> type, RecipeSerializer<?> serializer, String group, Ingredient input, ItemStack output) {
+		super(type, serializer, group, input, output);
 	}
 
 	public final ItemStack getResult() {

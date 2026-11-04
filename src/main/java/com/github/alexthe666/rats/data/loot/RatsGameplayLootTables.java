@@ -12,10 +12,18 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.function.BiConsumer;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 
 public class RatsGameplayLootTables implements LootTableSubProvider {
+
+	private final HolderLookup.Provider registries;
+
+	public RatsGameplayLootTables(HolderLookup.Provider registries) {
+		this.registries = registries;
+	}
 	@Override
-	public void generate(BiConsumer<ResourceLocation, LootTable.Builder> consumer) {
+	public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> consumer) {
 		consumer.accept(RatsLootRegistry.PET_SHOP_HOTV, LootTable.lootTable()
 				.withPool(LootPool.lootPool()
 						.setRolls(ConstantValue.exactly(1.0F))

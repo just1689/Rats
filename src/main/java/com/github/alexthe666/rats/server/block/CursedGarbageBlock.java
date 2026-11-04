@@ -11,8 +11,17 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.particles.ColorParticleOption;
 
 public class CursedGarbageBlock extends AbstractGarbageBlock {
+
+	public static final MapCodec<CursedGarbageBlock> CODEC = simpleCodec(CursedGarbageBlock::new);
+
+	@Override
+	protected MapCodec<CursedGarbageBlock> codec() {
+		return CODEC;
+	}
 
 	public CursedGarbageBlock(BlockBehaviour.Properties properties) {
 		super(properties, 1.0D);
@@ -37,7 +46,7 @@ public class CursedGarbageBlock extends AbstractGarbageBlock {
 				double d0 = (double) pos.getX() + (double) random.nextFloat();
 				double d1 = (double) pos.getY() + 1.05D;
 				double d2 = (double) pos.getZ() + (double) random.nextFloat();
-				level.addParticle(ParticleTypes.ENTITY_EFFECT, d0, d1, d2, 0, random.nextGaussian() * 0.05D + 0.75D, 0);
+				level.addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) (0), (float) (random.nextGaussian() * 0.05D + 0.75D), (float) (0)), d0, d1, d2, 0.0D, 0.0D, 0.0D);
 			}
 		}
 	}

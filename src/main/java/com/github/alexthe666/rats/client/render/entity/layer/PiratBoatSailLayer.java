@@ -17,8 +17,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 
 public class PiratBoatSailLayer<T extends PiratBoat, M extends EntityModel<T>> extends RenderLayer<T, M> {
 	public static final PiratCannonModel<?> MODEL_PIRAT_CANNON = new PiratCannonModel<>();
-	public static final ResourceLocation TEXTURE_PIRATE_CANNON = new ResourceLocation(RatsMod.MODID, "textures/entity/pirat/pirat_cannon.png");
-	public static final ResourceLocation TEXTURE_PIRATE_CANNON_FIRE = new ResourceLocation(RatsMod.MODID, "textures/entity/pirat/pirat_cannon_fire.png");
+	public static final ResourceLocation TEXTURE_PIRATE_CANNON = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/pirat/pirat_cannon.png");
+	public static final ResourceLocation TEXTURE_PIRATE_CANNON_FIRE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/pirat/pirat_cannon_fire.png");
 
 	public PiratBoatSailLayer(RenderLayerParent<T, M> parent) {
 		super(parent);
@@ -39,7 +39,7 @@ public class PiratBoatSailLayer<T extends PiratBoat, M extends EntityModel<T>> e
 		stack.mulPose(Axis.YN.rotationDegrees(90));
 		stack.translate(0, 0.1F, -0.6F);
 		stack.scale(0.75F, 0.75F, 0.75F);
-		MODEL_PIRAT_CANNON.renderToBuffer(stack, buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_PIRATE_CANNON)), light, OverlayTexture.pack(entity.deathTime > 0 ? entity.deathTime + 1 : 0, false), 1.0F, 1.0F, 1.0F, 1.0F);
+		MODEL_PIRAT_CANNON.renderToBuffer(stack, buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_PIRATE_CANNON)), light, OverlayTexture.pack(entity.deathTime > 0 ? entity.deathTime + 1 : 0, false), -1);
 		stack.popPose();
 
 		if (entity.isFiring()) {
@@ -47,7 +47,7 @@ public class PiratBoatSailLayer<T extends PiratBoat, M extends EntityModel<T>> e
 			stack.mulPose(Axis.YN.rotationDegrees(90));
 			stack.translate(0, 0.1F, -0.6F);
 			stack.scale(0.75F, 0.75F, 0.75F);
-			MODEL_PIRAT_CANNON.renderToBuffer(stack, buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_PIRATE_CANNON_FIRE)), 240, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+			MODEL_PIRAT_CANNON.renderToBuffer(stack, buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE_PIRATE_CANNON_FIRE)), 240, OverlayTexture.NO_OVERLAY, -1);
 			stack.popPose();
 		}
 		stack.popPose();

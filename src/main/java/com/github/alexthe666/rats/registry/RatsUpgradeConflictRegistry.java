@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 import java.util.Map;
+import net.minecraft.core.component.DataComponents;
 
 //TODO migrate away from this. We need a better system to use here.
 //Im thinking of forcing conflicts to be registered in the item class itself, using 2 new methods.
@@ -48,10 +49,8 @@ public class RatsUpgradeConflictRegistry {
 			return true;
 		Item[] arr = REGISTERED_CONFLICTS.get(newItem.getItem());
 		if (newItem.getItem() instanceof CombinedUpgrade combined) {
-			CompoundTag tag = newItem.getTag();
-			if (tag != null && tag.contains("Items", 9)) {
-				NonNullList<ItemStack> upgradeList = NonNullList.withSize(combined.getUpgradeSlots(), ItemStack.EMPTY);
-				ContainerHelper.loadAllItems(tag, upgradeList);
+			if (newItem.has(DataComponents.CONTAINER)) {
+				NonNullList<ItemStack> upgradeList = CombinedUpgrade.getUpgrades(newItem, combined.getUpgradeSlots());
 				for (ItemStack selectedUpgrade : upgradeList) {
 					if (doesConflict(selectedUpgrade, existingItem)) {
 						return true;
@@ -59,10 +58,8 @@ public class RatsUpgradeConflictRegistry {
 				}
 			}
 		} else if (existingItem.getItem() instanceof CombinedUpgrade combined) {
-			CompoundTag tag = existingItem.getTag();
-			if (tag != null && tag.contains("Items", 9)) {
-				NonNullList<ItemStack> upgradeList = NonNullList.withSize(combined.getUpgradeSlots(), ItemStack.EMPTY);
-				ContainerHelper.loadAllItems(tag, upgradeList);
+			if (existingItem.has(DataComponents.CONTAINER)) {
+				NonNullList<ItemStack> upgradeList = CombinedUpgrade.getUpgrades(existingItem, combined.getUpgradeSlots());
 				for (ItemStack selectedUpgrade : upgradeList) {
 					if (doesConflict(selectedUpgrade, newItem)) {
 						return true;

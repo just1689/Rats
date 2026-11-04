@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.LevelReader;
 
 @SuppressWarnings("deprecation")
 public class RatCageDecoratedBlock extends RatCageBlock implements EntityBlock {
@@ -63,7 +64,7 @@ public class RatCageDecoratedBlock extends RatCageBlock implements EntityBlock {
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		return new ItemStack(RatsBlockRegistry.RAT_CAGE.get());
 	}
 }

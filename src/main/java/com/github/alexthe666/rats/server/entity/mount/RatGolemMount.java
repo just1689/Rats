@@ -29,6 +29,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class RatGolemMount extends RatMountBase {
 
@@ -36,7 +38,7 @@ public class RatGolemMount extends RatMountBase {
 
 	public RatGolemMount(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(1.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
 		this.riderY = 1.95F;
 		this.riderXZ = -0.1F;
 	}
@@ -105,7 +107,9 @@ public class RatGolemMount extends RatMountBase {
 		boolean flag = entity.hurt(this.damageSources().mobAttack(this), (float) (7 + this.getRandom().nextInt(15)));
 		if (flag) {
 			entity.setDeltaMovement(entity.getDeltaMovement().add(0.0D, 0.4F, 0.0D));
-			this.doEnchantDamageEffects(this, entity);
+			if (this.level() instanceof ServerLevel enchantLevel) {
+			EnchantmentHelper.doPostAttackEffects(enchantLevel, entity, this.damageSources().mobAttack(this));
+		}
 		}
 
 		this.playSound(SoundEvents.IRON_GOLEM_ATTACK, 1.0F, 1.0F);

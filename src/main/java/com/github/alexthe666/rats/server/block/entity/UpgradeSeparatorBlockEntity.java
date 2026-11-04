@@ -17,6 +17,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.core.component.DataComponents;
+import com.github.alexthe666.rats.server.items.upgrades.interfaces.CombinedUpgrade;
+import net.minecraft.world.phys.Vec3;
 
 public class UpgradeSeparatorBlockEntity extends BlockEntity {
 	public float ratRotation;
@@ -36,11 +39,9 @@ public class UpgradeSeparatorBlockEntity extends BlockEntity {
 		for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, new AABB((double) i - d0, (double) j - d0, (double) k - d0, (double) i + d0, (double) j + d0, (double) k + d0))) {
 			ItemStack item = itemEntity.getItem();
 			if (item.getItem() instanceof CombinedRatUpgradeItem) {
-				CompoundTag CompoundNBT1 = item.getTag();
 				int spawnedItem = 0;
-				if (CompoundNBT1 != null && CompoundNBT1.contains("Items", 9)) {
-					NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
-					ContainerHelper.loadAllItems(CompoundNBT1, nonnulllist);
+				if (item.has(DataComponents.CONTAINER)) {
+					NonNullList<ItemStack> nonnulllist = CombinedUpgrade.getUpgrades(item, 27);
 					for (ItemStack itemstack : nonnulllist) {
 						if (!itemstack.isEmpty()) {
 							ItemEntity splitEntity = new ItemEntity(level, itemEntity.getX(), itemEntity.getY(), itemEntity.getZ(), itemstack.copy());
@@ -72,6 +73,6 @@ public class UpgradeSeparatorBlockEntity extends BlockEntity {
 	}
 
 	public AABB getRenderBoundingBox() {
-		return new AABB(this.getBlockPos(), this.getBlockPos().offset(1, 2, 1));
+		return new AABB(Vec3.atLowerCornerOf(this.getBlockPos()), Vec3.atLowerCornerOf(this.getBlockPos().offset(1, 2, 1)));
 	}
 }

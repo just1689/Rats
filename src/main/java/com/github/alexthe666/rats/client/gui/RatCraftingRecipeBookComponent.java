@@ -9,11 +9,12 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.Iterator;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class RatCraftingRecipeBookComponent extends RecipeBookComponent {
 
 	@Override
-	public void placeRecipe(int width, int height, int result, Recipe<?> recipe, Iterator<Ingredient> iterator, int zeroidk) {
+	public void placeRecipe(int width, int height, int result, RecipeHolder<?> recipe, Iterator<Ingredient> iterator, int zeroidk) {
 		if (this.menu instanceof RatCraftingTableMenu crafting) {
 			//clear grid
 			for (int slot = 0; slot < 9; slot++) {
@@ -26,9 +27,8 @@ public class RatCraftingRecipeBookComponent extends RecipeBookComponent {
 	}
 
 	@Override
-	public void addItemToSlot(Iterator<Ingredient> iterator, int slotIndex, int zeroidk, int width, int height) {
+	public void addItemToSlot(Ingredient ingredient, int slotIndex, int zeroidk, int width, int height) {
 		if (this.menu instanceof RatCraftingTableMenu crafting) {
-			Ingredient ingredient = iterator.next();
 			if (!ingredient.isEmpty()) {
 				Slot slot = this.menu.slots.get(slotIndex);
 				crafting.getCraftingTable().matrixHandler.ifPresent(handler -> handler.setStackInSlot(slot.index - 1, ingredient.getItems()[0]));

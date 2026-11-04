@@ -11,6 +11,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.phys.Vec3;
 
 public class RatlantisTokenBlockEntity extends BlockEntity {
 
@@ -23,18 +25,18 @@ public class RatlantisTokenBlockEntity extends BlockEntity {
 		super(RatlantisBlockEntityRegistry.TOKEN.get(), pos, state);
 	}
 
-	public void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
 		compound.putInt("TicksExisted", tickCount);
-		super.saveAdditional(compound);
+		super.saveAdditional(compound, registries);
 	}
 
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.loadAdditional(compound, registries);
 		tickCount = compound.getInt("TicksExisted");
 	}
 
 	public AABB getRenderBoundingBox() {
-		return new AABB(this.getBlockPos().offset(-3, -4, -3), this.getBlockPos().offset(3, 4, 3));
+		return new AABB(Vec3.atLowerCornerOf(this.getBlockPos().offset(-3, -4, -3)), Vec3.atLowerCornerOf(this.getBlockPos().offset(3, 4, 3)));
 	}
 
 	public static void tick(Level level, BlockPos pos, BlockState state, RatlantisTokenBlockEntity te) {

@@ -24,11 +24,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PsychicRatUpgradeItem extends StatBoostingRatUpgradeItem implements TickRatUpgrade, HoldsItemUpgrade {
 	public PsychicRatUpgradeItem(Properties properties) {
@@ -90,7 +90,7 @@ public class PsychicRatUpgradeItem extends StatBoostingRatUpgradeItem implements
 					if (!rat.level().isClientSide()) {
 						rat.level().addFreshEntity(thrownBlock);
 					}
-					RatsNetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new SyncThrownBlockPacket(thrownBlock.getId(), pos.asLong()));
+					PacketDistributor.sendToAllPlayers(new SyncThrownBlockPacket(thrownBlock.getId(), pos.asLong()));
 				} else {
 					rat.rangedAttackCooldown += 5;
 				}

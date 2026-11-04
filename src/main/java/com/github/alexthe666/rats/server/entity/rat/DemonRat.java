@@ -26,8 +26,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.Vec3;
 
 public class DemonRat extends AbstractRat implements Enemy {
 
@@ -36,14 +37,14 @@ public class DemonRat extends AbstractRat implements Enemy {
 	public DemonRat(EntityType<? extends AbstractRat> type, Level level) {
 		super(type, level);
 		this.xpReward = 5;
-		this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, 16.0F);
-		this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+		this.setPathfindingMalus(PathType.DANGER_FIRE, 16.0F);
+		this.setPathfindingMalus(PathType.DAMAGE_FIRE, -1.0F);
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(SOUL_VARIANT, false);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(SOUL_VARIANT, false);
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class DemonRat extends AbstractRat implements Enemy {
 	@Override
 	public boolean doHurtTarget(Entity entity) {
 		if (this.getRandom().nextInt(3) == 0) {
-			entity.setSecondsOnFire(5);
+			entity.igniteForSeconds(5);
 		}
 		return super.doHurtTarget(entity);
 	}
@@ -117,14 +118,19 @@ public class DemonRat extends AbstractRat implements Enemy {
 		return true;
 	}
 
-	@Override
 	public double getMyRidingOffset() {
 		return 0.25D;
 	}
 
+	//passengers used to be offset with getMyRidingOffset, now the vehicle attachment point does that
+	@Override
+	public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+		return new Vec3(0.0D, -this.getMyRidingOffset(), 0.0D);
+	}
+
 	@Nullable
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
-		data = super.finalizeSpawn(accessor, difficulty, type, data, tag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data) {
+		data = super.finalizeSpawn(accessor, difficulty, type, data);
 		this.setSoulVariant(accessor.getBiome(this.blockPosition()).is(Biomes.SOUL_SAND_VALLEY) || accessor.getRandom().nextInt(100) == 0);
 		return data;
 	}

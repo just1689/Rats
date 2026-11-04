@@ -17,8 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.Objects;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 
-public class RatCraftingTableMenu extends RecipeBookMenu<Container> {
+public class RatCraftingTableMenu extends RecipeBookMenu<CraftingInput, CraftingRecipe> {
 
 	private final RatCraftingTableBlockEntity table;
 	private final ContainerData data;
@@ -161,7 +164,7 @@ public class RatCraftingTableMenu extends RecipeBookMenu<Container> {
 	}
 
 	@Override
-	public boolean recipeMatches(Recipe<? super Container> recipe) {
+	public boolean recipeMatches(RecipeHolder<CraftingRecipe> recipe) {
 		return true;
 	}
 

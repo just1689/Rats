@@ -12,11 +12,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.Cloner;
 
 public class RatlantisWorldGenerator extends DatapackBuiltinEntriesProvider {
 
@@ -39,12 +40,9 @@ public class RatlantisWorldGenerator extends DatapackBuiltinEntriesProvider {
 	}
 
 	public static DataProvider addProviders(DataGenerator.PackGenerator generator, PackOutput output, CompletableFuture<HolderLookup.Provider> provider, ExistingFileHelper helper) {
-		DataProvider data = new RatlantisWorldGenerator(output, provider);
-		generator.addProvider(p_253851_ -> new RatlantisBiomeTags(output, provider.thenApply(r -> append(r, BUILDER)), helper));
+		RatlantisWorldGenerator data = new RatlantisWorldGenerator(output, provider);
+		generator.addProvider(p_253851_ -> new RatlantisBiomeTags(output, data.getRegistryProvider(), helper));
 		return data;
 	}
 
-	private static HolderLookup.Provider append(HolderLookup.Provider original, RegistrySetBuilder builder) {
-		return builder.buildPatch(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), original);
-	}
 }

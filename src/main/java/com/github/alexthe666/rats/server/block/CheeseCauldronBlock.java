@@ -24,22 +24,34 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.Map;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
+import com.github.alexthe666.rats.registry.RatsBlockRegistry;
+import com.github.alexthe666.rats.registry.RatsCauldronRegistry;
+import net.minecraft.world.level.LevelReader;
 
 public class CheeseCauldronBlock extends AbstractCauldronBlock {
 
-	private final RegistryObject<Block> drop;
+	public static final MapCodec<CheeseCauldronBlock> CODEC = simpleCodec(properties -> new CheeseCauldronBlock(properties, RatsBlockRegistry.BLOCK_OF_CHEESE, RatsCauldronRegistry.CHEESE));
 
-	public CheeseCauldronBlock(BlockBehaviour.Properties properties, RegistryObject<Block> dropBlock, Map<Item, CauldronInteraction> interaction) {
+	@Override
+	protected MapCodec<CheeseCauldronBlock> codec() {
+		return CODEC;
+	}
+
+	private final DeferredHolder<Block, Block> drop;
+
+	public CheeseCauldronBlock(BlockBehaviour.Properties properties, DeferredHolder<Block, Block> dropBlock, CauldronInteraction.InteractionMap interaction) {
 		super(properties, interaction);
 		this.drop = dropBlock;
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if (super.use(state, level, pos, player, hand, hit) == InteractionResult.PASS) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (super.useItemOn(usedStack, state, level, pos, player, hand, hit) == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
 			level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
 			level.playSound(null, pos, RatsSoundRegistry.CHEESE_CAULDRON_EMPTY.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 			level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -47,7 +59,7 @@ public class CheeseCauldronBlock extends AbstractCauldronBlock {
 				player.drop(new ItemStack(this.drop.get()), false);
 			}
 		}
-		return InteractionResult.SUCCESS;
+		return ItemInteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -71,7 +83,7 @@ public class CheeseCauldronBlock extends AbstractCauldronBlock {
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		return new ItemStack(Items.CAULDRON);
 	}
 }

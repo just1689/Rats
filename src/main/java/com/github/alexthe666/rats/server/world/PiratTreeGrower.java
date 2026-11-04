@@ -1,22 +1,17 @@
 package com.github.alexthe666.rats.server.world;
 
-import com.github.alexthe666.rats.registry.worldgen.RatlantisConfiguredFeatureRegistry;
+import com.github.alexthe666.rats.RatsMod;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.grower.AbstractMegaTreeGrower;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.grower.TreeGrower;
 
-public class PiratTreeGrower extends AbstractMegaTreeGrower {
-	@Nullable
-	@Override
-	protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredFeature(RandomSource random, boolean bees) {
-		return RatlantisConfiguredFeatureRegistry.GHOST_PIRAT_TREE;
-	}
+import java.util.Optional;
 
-	@Nullable
-	@Override
-	protected ResourceKey<ConfiguredFeature<?, ?>> getConfiguredMegaFeature(RandomSource random) {
-		return RatlantisConfiguredFeatureRegistry.LARGE_GHOST_PIRAT_TREE;
-	}
+public class PiratTreeGrower {
+	//keys are created here instead of referencing RatlantisConfiguredFeatureRegistry, its static init needs blocks that arent registered yet
+	public static final TreeGrower PIRAT = new TreeGrower("rats:pirat",
+			Optional.of(ResourceKey.create(Registries.CONFIGURED_FEATURE, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "large_ghost_pirat_tree"))),
+			Optional.of(ResourceKey.create(Registries.CONFIGURED_FEATURE, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "ghost_pirat_tree"))),
+			Optional.empty());
 }

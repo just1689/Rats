@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.github.alexthe666.rats.server.misc.StackData;
 
 public class RatSackItem extends Item {
 
@@ -30,23 +31,20 @@ public class RatSackItem extends Item {
 	}
 
 	public static void packRatIntoSack(ItemStack sack, TamedRat rat, int ratCount) {
-		CompoundTag tag = sack.getTag();
-		if (tag == null) {
-			tag = new CompoundTag();
-			sack.setTag(tag);
-		}
+		CompoundTag tag = StackData.getOrEmpty(sack);
 		CompoundTag ratTag = new CompoundTag();
 		rat.addAdditionalSaveData(ratTag);
 		if (rat.hasCustomName()) {
-			ratTag.putString("CustomName", Component.Serializer.toJson(rat.getCustomName()));
+			ratTag.putString("CustomName", Component.Serializer.toJson(rat.getCustomName(), rat.registryAccess()));
 		}
 		tag.put("Rat_" + ratCount, ratTag);
+		StackData.set(sack, tag);
 	}
 
 	public static int getRatsInSack(ItemStack sack) {
 		int ratCount = 0;
-		if (sack.getTag() != null) {
-			for (String tagInfo : sack.getTag().getAllKeys()) {
+		if (StackData.has(sack)) {
+			for (String tagInfo : StackData.getOrEmpty(sack).getAllKeys()) {
 				if (tagInfo.contains("Rat")) {
 					ratCount++;
 				}
@@ -57,15 +55,15 @@ public class RatSackItem extends Item {
 
 	public static int ejectRatsFromSack(ItemStack stack, Level level, BlockPos pos) {
 		int ratCount = 0;
-		if (stack.getTag() != null) {
-			for (String tagInfo : stack.getTag().getAllKeys()) {
+		if (StackData.has(stack)) {
+			for (String tagInfo : StackData.getOrEmpty(stack).getAllKeys()) {
 				if (tagInfo.contains("Rat")) {
 					ratCount++;
-					CompoundTag ratTag = stack.getTag().getCompound(tagInfo);
+					CompoundTag ratTag = StackData.getOrEmpty(stack).getCompound(tagInfo);
 					TamedRat rat = new TamedRat(RatsEntityRegistry.TAMED_RAT.get(), level);
 					rat.readAdditionalSaveData(ratTag);
 					if (!ratTag.getString("CustomName").isEmpty()) {
-						rat.setCustomName(Component.Serializer.fromJson(ratTag.getString("CustomName")));
+						rat.setCustomName(Component.Serializer.fromJson(ratTag.getString("CustomName"), level.registryAccess()));
 					}
 					rat.moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 0.0F, 0.0F);
 					if (!level.isClientSide()) {
@@ -78,17 +76,17 @@ public class RatSackItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		int ratCount = 0;
 		List<String> ratNames = new ArrayList<>();
-		if (stack.getTag() != null) {
-			for (String tagInfo : stack.getTag().getAllKeys()) {
+		if (StackData.has(stack)) {
+			for (String tagInfo : StackData.getOrEmpty(stack).getAllKeys()) {
 				if (tagInfo.contains("Rat")) {
-					CompoundTag ratTag = stack.getTag().getCompound(tagInfo);
+					CompoundTag ratTag = StackData.getOrEmpty(stack).getCompound(tagInfo);
 					ratCount++;
 					String ratName = I18n.get("entity.rats.rat");
 					if (!ratTag.getString("CustomName").isEmpty()) {
-						Component ratNameTag = Component.Serializer.fromJson(ratTag.getString("CustomName"));
+						Component ratNameTag = level.registries() == null ? null : Component.Serializer.fromJson(ratTag.getString("CustomName"), level.registries());
 						if (ratNameTag != null) {
 							ratName = ratNameTag.getString();
 						}
@@ -120,7 +118,7 @@ public class RatSackItem extends Item {
 
 			if (ratCount > 0) {
 				context.getPlayer().displayClientMessage(Component.translatable(RatsLangConstants.RAT_SACK_RELEASED_RATS, ratCount), true);
-				stack.setTag(new CompoundTag());
+				StackData.set(stack, new CompoundTag());
 				return InteractionResult.SUCCESS;
 			}
 		}

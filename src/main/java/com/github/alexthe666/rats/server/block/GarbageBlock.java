@@ -10,8 +10,17 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.entity.SpawnPlacementType;
 
 public final class GarbageBlock extends AbstractGarbageBlock {
+
+	public static final MapCodec<GarbageBlock> CODEC = simpleCodec(properties -> new GarbageBlock(properties, 1.0D));
+
+	@Override
+	protected MapCodec<GarbageBlock> codec() {
+		return CODEC;
+	}
 	public GarbageBlock(Properties properties, double spawnRateModifier) {
 		super(properties, spawnRateModifier);
 	}
@@ -32,10 +41,6 @@ public final class GarbageBlock extends AbstractGarbageBlock {
 		}
 	}
 
-	@Override
-	public boolean isValidSpawn(BlockState state, BlockGetter level, BlockPos pos, SpawnPlacements.Type type, EntityType<?> entityType) {
-		return entityType == RatsEntityRegistry.RAT.get();
-	}
 
 	@Override
 	public int getDustColor(BlockState state, BlockGetter getter, BlockPos pos) {

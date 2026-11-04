@@ -285,10 +285,10 @@ public class RatBaronPlane extends Mob implements Plane, AdjustsRatTail {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(FIRING, false);
-		this.getEntityData().define(PLANE_PITCH, 0F);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(FIRING, false);
+		builder.define(PLANE_PITCH, 0F);
 	}
 
 	public boolean isFiring() {
@@ -322,7 +322,7 @@ public class RatBaronPlane extends Mob implements Plane, AdjustsRatTail {
 	}
 
 	@Override
-	public boolean canChangeDimensions() {
+	public boolean canChangeDimensions(Level from, Level to) {
 		return false;
 	}
 

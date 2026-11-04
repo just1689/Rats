@@ -10,8 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +30,8 @@ public class RatsEntityTags extends EntityTypeTagsProvider {
 	@Override
 	protected void addTags(HolderLookup.Provider provider) {
 		tag(RATS).add(RatsEntityRegistry.RAT.get(), RatsEntityRegistry.TAMED_RAT.get(), RatsEntityRegistry.DEMON_RAT.get());
+		//1.21: mob types are tags now
+		tag(EntityTypeTags.ILLAGER).add(RatsEntityRegistry.PIED_PIPER.get());
 
 		tag(RAT_MOUNTS).add(
 				RatsEntityRegistry.RAT_MOUNT_BEAST.get(), RatsEntityRegistry.RAT_STRIDER_MOUNT.get(),
@@ -58,6 +60,6 @@ public class RatsEntityTags extends EntityTypeTagsProvider {
 	}
 
 	public static TagKey<EntityType<?>> create(String name) {
-		return TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(RatsMod.MODID, name));
+		return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, name));
 	}
 }

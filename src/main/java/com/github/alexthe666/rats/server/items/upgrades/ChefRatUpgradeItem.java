@@ -11,6 +11,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 
 import java.util.Optional;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 public class ChefRatUpgradeItem extends BaseRatUpgradeItem implements TickRatUpgrade {
 	public ChefRatUpgradeItem(Properties properties) {
@@ -64,7 +66,7 @@ public class ChefRatUpgradeItem extends BaseRatUpgradeItem implements TickRatUpg
 			return specialChefRecipe.copy();
 		}
 
-		Optional<SmeltingRecipe> optional = rat.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SimpleContainer(stack), rat.level());
+		Optional<SmeltingRecipe> optional = rat.level().getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(stack), rat.level()).map(RecipeHolder::value);
 		if (optional.isPresent()) {
 			ItemStack itemstack = optional.get().getResultItem(rat.level().registryAccess());
 			if (!itemstack.isEmpty()) {

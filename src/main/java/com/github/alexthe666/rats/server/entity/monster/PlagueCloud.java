@@ -39,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.particles.ColorParticleOption;
 
 public class PlagueCloud extends Monster {
 
@@ -71,7 +72,7 @@ public class PlagueCloud extends Monster {
 			if (this.getRandom().nextBoolean()) {
 				this.level().addParticle(RatsParticleRegistry.BLACK_DEATH.get(), x, y + 1.5F, z, d0, d1, d2);
 			} else {
-				this.level().addParticle(ParticleTypes.ENTITY_EFFECT, x, y + 1.5F, z, d0, d1, d2);
+				this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) (d0), (float) (d1), (float) (d2)), x, y + 1.5F, z, 0.0D, 0.0D, 0.0D);
 
 			}
 		}
@@ -115,9 +116,9 @@ public class PlagueCloud extends Monster {
 		return d0 * d0 + d1 * d1 + d2 * d2;
 	}
 
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(OWNER_UNIQUE_ID, Optional.empty());
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(OWNER_UNIQUE_ID, Optional.empty());
 	}
 
 	protected void registerGoals() {
@@ -134,7 +135,7 @@ public class PlagueCloud extends Monster {
 	public boolean doHurtTarget(Entity entity) {
 		boolean flag = super.doHurtTarget(entity);
 		if (flag && entity instanceof LivingEntity living) {
-			living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 600));
+			living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE, 600));
 		}
 		return flag;
 	}

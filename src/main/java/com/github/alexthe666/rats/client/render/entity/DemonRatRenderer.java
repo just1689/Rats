@@ -15,10 +15,10 @@ import net.minecraft.resources.ResourceLocation;
 
 public class DemonRatRenderer extends AbstractRatRenderer<DemonRat, RatModel<DemonRat>> {
 
-	public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/demon_rat/demon_rat.png");
-	public static final ResourceLocation SOUL_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/demon_rat/soul_demon_rat.png");
-	public static final ResourceLocation BASE_EYE_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/demon_rat/demon_rat_eye.png");
-	public static final ResourceLocation SOUL_EYE_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/demon_rat/soul_demon_rat_eye.png");
+	public static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/demon_rat/demon_rat.png");
+	public static final ResourceLocation SOUL_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/demon_rat/soul_demon_rat.png");
+	public static final ResourceLocation BASE_EYE_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/demon_rat/demon_rat_eye.png");
+	public static final ResourceLocation SOUL_EYE_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/demon_rat/soul_demon_rat_eye.png");
 
 	public DemonRatRenderer(EntityRendererProvider.Context context) {
 		super(context, new RatModel<>());
@@ -44,7 +44,7 @@ public class DemonRatRenderer extends AbstractRatRenderer<DemonRat, RatModel<Dem
 		@Override
 		public void render(PoseStack stack, MultiBufferSource buffer, int light, DemonRat rat, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 			VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.eyes(rat.isSoulVariant() ? SOUL_EYE_TEXTURE : BASE_EYE_TEXTURE));
-			this.getParentModel().renderToBuffer(stack, vertexconsumer, 15728640, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+			this.getParentModel().renderToBuffer(stack, vertexconsumer, 15728640, OverlayTexture.NO_OVERLAY, -1);
 		}
 	}
 }

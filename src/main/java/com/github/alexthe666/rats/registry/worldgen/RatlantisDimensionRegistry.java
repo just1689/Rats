@@ -4,7 +4,7 @@ import com.github.alexthe666.rats.RatsMod;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstapContext;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -27,12 +27,12 @@ import java.util.List;
 import java.util.OptionalLong;
 
 public class RatlantisDimensionRegistry {
-	public static final ResourceLocation DIMENSION = new ResourceLocation(RatsMod.MODID, "ratlantis");
+	public static final ResourceLocation DIMENSION = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "ratlantis");
 	public static final ResourceKey<Level> DIMENSION_KEY = ResourceKey.create(Registries.DIMENSION, DIMENSION);
 
-	public static final ResourceKey<ConfiguredWorldCarver<?>> RATLANTIS_CAVES = ResourceKey.create(Registries.CONFIGURED_CARVER, new ResourceLocation(RatsMod.MODID, "ratlantis_caves"));
-	public static final ResourceKey<NoiseGeneratorSettings> RATLANTIS_NOISE_GEN = ResourceKey.create(Registries.NOISE_SETTINGS, new ResourceLocation(RatsMod.MODID, "ratlantis_noise_gen"));
-	public static final ResourceKey<DimensionType> RATLANTIS_DIM_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(RatsMod.MODID, "ratlantis_type"));
+	public static final ResourceKey<ConfiguredWorldCarver<?>> RATLANTIS_CAVES = ResourceKey.create(Registries.CONFIGURED_CARVER, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "ratlantis_caves"));
+	public static final ResourceKey<NoiseGeneratorSettings> RATLANTIS_NOISE_GEN = ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "ratlantis_noise_gen"));
+	public static final ResourceKey<DimensionType> RATLANTIS_DIM_TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "ratlantis_type"));
 	public static final ResourceKey<LevelStem> RATLANTIS_LEVEL_STEM = ResourceKey.create(Registries.LEVEL_STEM, DIMENSION);
 
 	private static DimensionType ratlantisType() {
@@ -49,7 +49,7 @@ public class RatlantisDimensionRegistry {
 				256,
 				256,
 				BlockTags.INFINIBURN_OVERWORLD,
-				new ResourceLocation("overworld"),
+				ResourceLocation.parse("overworld"),
 				0.0F,
 				new DimensionType.MonsterSettings(false, false, UniformInt.of(0, 7), 7)
 		);
@@ -134,15 +134,15 @@ public class RatlantisDimensionRegistry {
 		);
 	}
 
-	public static void bootstrapNoise(BootstapContext<NoiseGeneratorSettings> context) {
+	public static void bootstrapNoise(BootstrapContext<NoiseGeneratorSettings> context) {
 		context.register(RATLANTIS_NOISE_GEN, ratlantisNoise(context.lookup(Registries.DENSITY_FUNCTION), context.lookup(Registries.NOISE)));
 	}
 
-	public static void bootstrapType(BootstapContext<DimensionType> context) {
+	public static void bootstrapType(BootstrapContext<DimensionType> context) {
 		context.register(RATLANTIS_DIM_TYPE, ratlantisType());
 	}
 
-	public static void bootstrapCarver(BootstapContext<ConfiguredWorldCarver<?>> context) {
+	public static void bootstrapCarver(BootstrapContext<ConfiguredWorldCarver<?>> context) {
 		context.register(RATLANTIS_CAVES, RatlantisFeatureRegistry.RATLANTIS_CAVES.get().configured(new CaveCarverConfiguration(
 				0.15F,
 				UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(180)),
@@ -155,7 +155,7 @@ public class RatlantisDimensionRegistry {
 				UniformFloat.of(-1.0F, -0.4F))));
 	}
 
-	public static void bootstrapLevelStem(BootstapContext<LevelStem> context) {
+	public static void bootstrapLevelStem(BootstrapContext<LevelStem> context) {
 		HolderGetter<Biome> biomeRegistry = context.lookup(Registries.BIOME);
 		HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseGenSettings = context.lookup(Registries.NOISE_SETTINGS);

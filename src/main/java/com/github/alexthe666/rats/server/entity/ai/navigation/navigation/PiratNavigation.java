@@ -28,7 +28,7 @@ public class PiratNavigation extends PathNavigation {
 
 	@Override
 	protected boolean canUpdatePath() {
-		return this.isInLiquid();
+		return this.mob.isInWaterOrBubble() || this.mob.isInLava();
 	}
 
 	@Override

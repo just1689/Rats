@@ -10,25 +10,40 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.EnumSet;
+import net.minecraft.world.entity.LivingEntity;
 
 public class RatFollowOwnerGoal extends FollowOwnerGoal {
 	private final TamedRat rat;
 	private final double speedModifier;
+	private final float startDistance;
+	private final float stopDistance;
 	private int timeToRecalcPath;
 
 	public RatFollowOwnerGoal(TamedRat rat, double speedModifier, float startDist, float stopDist) {
-		super(rat, speedModifier, startDist, stopDist, false);
+		super(rat, speedModifier, startDist, stopDist);
 		this.rat = rat;
 		this.speedModifier = speedModifier;
+		this.startDistance = startDist;
+		this.stopDistance = stopDist;
 		this.setFlags(EnumSet.of(Goal.Flag.MOVE));
 	}
 
+	//vanilla doesnt let tamed mobs follow their owner while riding something, but rats can ride mounts
 	@Override
 	public boolean canUse() {
-		return this.rat.canMove() && this.rat.isFollowing() && super.canUse();
+		LivingEntity owner = this.rat.getOwner();
+		if (owner == null || this.unableToMove() || this.rat.distanceToSqr(owner) < (double) (this.startDistance * this.startDistance)) {
+			return false;
+		}
+		this.owner = owner;
+		return this.rat.canMove() && this.rat.isFollowing();
 	}
 
 	@Override
+	public boolean canContinueToUse() {
+		return !this.rat.getNavigation().isDone() && !this.unableToMove() && this.rat.distanceToSqr(this.owner) > (double) (this.stopDistance * this.stopDistance);
+	}
+
 	public boolean unableToMove() {
 		return this.rat.isOrderedToSit() || this.rat.getVehicle() instanceof Player || this.rat.isLeashed();
 	}
@@ -48,7 +63,7 @@ public class RatFollowOwnerGoal extends FollowOwnerGoal {
 				this.timeToRecalcPath = this.adjustedTickDelay(10);
 				if (this.rat.distanceToSqr(this.owner) >= (this.rat.hasFlightUpgrade() ? 800.0D : 400.0D)) {
 					if (!this.maybeTeleportMount()) {
-						this.teleportToOwner();
+						this.rat.tryToTeleportToOwner();
 					}
 				} else {
 					if (this.rat.hasFlightUpgrade()) {
@@ -82,7 +97,7 @@ public class RatFollowOwnerGoal extends FollowOwnerGoal {
 	private boolean attemptTeleportEntity(Entity mount, int x, int y, int z) {
 		if (Math.abs((double) x - this.owner.getX()) < 2.0D && Math.abs((double) z - this.owner.getZ()) < 2.0D) {
 			return false;
-		} else if (!this.canTeleportTo(new BlockPos(x, y, z))) {
+		} else if (!this.rat.canTeleportTo(new BlockPos(x, y, z))) {
 			return false;
 		} else {
 			mount.moveTo((double) x + 0.5D, y, (double) z + 0.5D, this.rat.getYRot(), this.rat.getXRot());

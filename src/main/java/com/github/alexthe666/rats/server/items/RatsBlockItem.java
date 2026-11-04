@@ -14,25 +14,22 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import java.util.function.Consumer;
+import net.minecraft.world.entity.LivingEntity;
 
-public class RatsBlockItem extends BlockItem {
+public class RatsBlockItem extends BlockItem implements ClientExtensionsItem {
 
 	public RatsBlockItem(Block block, Properties properties) {
-		super(block, properties);
+		super(block, block instanceof CustomItemRarity rarity ? properties.rarity(rarity.getRarity()) : properties);
 	}
 
 	@Override
-	public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
+	public boolean canEquip(ItemStack stack, EquipmentSlot armorType, LivingEntity entity) {
 		return this.getBlock() instanceof WearableOnHead && EquipmentSlot.HEAD == armorType;
 	}
 
-	@Override
-	public Rarity getRarity(ItemStack stack) {
-		return this.getBlock() instanceof CustomItemRarity rarity ? rarity.getRarity() : super.getRarity(stack);
-	}
 
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
@@ -42,8 +39,7 @@ public class RatsBlockItem extends BlockItem {
 		return super.useOn(context);
 	}
 
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+	public void registerClientExtensions(Consumer<IClientItemExtensions> consumer) {
 		consumer.accept(new IClientItemExtensions() {
 			@Override
 			public BlockEntityWithoutLevelRenderer getCustomRenderer() {

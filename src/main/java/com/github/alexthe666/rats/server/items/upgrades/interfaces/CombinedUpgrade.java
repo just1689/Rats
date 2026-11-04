@@ -9,17 +9,26 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.ItemContainerContents;
 
 public interface CombinedUpgrade {
+
+	static NonNullList<ItemStack> getUpgrades(ItemStack stack, int size) {
+		NonNullList<ItemStack> list = NonNullList.withSize(size, ItemStack.EMPTY);
+		stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(list);
+		return list;
+	}
+
+	static void setUpgrades(ItemStack stack, List<ItemStack> upgrades) {
+		stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(upgrades));
+	}
 
 	int getUpgradeSlots();
 
 	default void addTooltip(ItemStack stack, List<Component> tooltip) {
-		CompoundTag tag = stack.getTag();
-
-		if (tag != null && tag.contains("Items", 9)) {
-			NonNullList<ItemStack> nonnulllist = NonNullList.withSize(this.getUpgradeSlots(), ItemStack.EMPTY);
-			ContainerHelper.loadAllItems(tag, nonnulllist);
+		if (stack.has(DataComponents.CONTAINER)) {
+			NonNullList<ItemStack> nonnulllist = CombinedUpgrade.getUpgrades(stack, this.getUpgradeSlots());
 			int i = 0;
 			for (ItemStack itemstack : nonnulllist) {
 				if (!itemstack.isEmpty()) {

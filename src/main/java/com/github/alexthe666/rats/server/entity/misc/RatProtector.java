@@ -22,7 +22,7 @@ public class RatProtector extends AbstractRat {
 	}
 
 	@Override
-	public int getExperienceReward() {
+	protected int getBaseExperienceReward() {
 		return 0;
 	}
 

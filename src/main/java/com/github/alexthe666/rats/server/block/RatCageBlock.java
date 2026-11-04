@@ -43,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.ItemInteractionResult;
 
 @SuppressWarnings("deprecation")
 public class RatCageBlock extends Block {
@@ -97,7 +99,7 @@ public class RatCageBlock extends Block {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter getter, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext getter, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.rat_cage.desc0").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("block.rats.rat_cage.desc1").withStyle(ChatFormatting.GRAY));
 	}
@@ -144,7 +146,7 @@ public class RatCageBlock extends Block {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (player.getItemInHand(hand).getItem() instanceof RatCageDecoration decoration && level.getBlockEntity(pos) == null) {
 			Direction limitedFacing = player.getDirection().getOpposite();
 			if (state.getValue(PROPERTY_BY_DIRECTION.get(decoration.getSupportedFace(limitedFacing))) == 0) {
@@ -162,7 +164,7 @@ public class RatCageBlock extends Block {
 					this.setupCage(level, pos, decorated, limitedFacing, player, hand);
 				}
 
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			}
 		}
 		if (level.getBlockEntity(pos) != null) {
@@ -205,9 +207,9 @@ public class RatCageBlock extends Block {
 				player.displayClientMessage(Component.translatable(RatsLangConstants.CAGE_WITHDRAW, ratCount), true);
 				this.onRatsRemoved(state, level, pos, player);
 			}
-			return InteractionResult.SUCCESS;
+			return ItemInteractionResult.SUCCESS;
 		}
-		return InteractionResult.PASS;
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	private void setupCage(Level level, BlockPos pos, BlockState state, Direction dir, Player player, InteractionHand hand) {

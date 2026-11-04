@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class RattlingGun extends Entity implements AdjustsRatTail {
 	private static final EntityDataAccessor<Boolean> FIRING = SynchedEntityData.defineId(RattlingGun.class, EntityDataSerializers.BOOLEAN);
@@ -60,6 +61,11 @@ public class RattlingGun extends Entity implements AdjustsRatTail {
 		return 0.45D;
 	}
 
+	@Override
+	public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+		return new Vec3(0.0D, -this.getMyRidingOffset(), 0.0D);
+	}
+
 	public void positionRider(Entity passenger, Entity.MoveFunction callback) {
 		super.positionRider(passenger, callback);
 		float radius = 0.9F;
@@ -71,8 +77,8 @@ public class RattlingGun extends Entity implements AdjustsRatTail {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		this.getEntityData().define(FIRING, false);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		builder.define(FIRING, false);
 	}
 
 	public boolean isFiring() {

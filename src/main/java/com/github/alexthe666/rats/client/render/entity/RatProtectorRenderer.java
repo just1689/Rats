@@ -12,10 +12,11 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 
 public class RatProtectorRenderer extends AbstractRatRenderer<RatProtector, RatModel<RatProtector>> {
 
-	public static final ResourceLocation BASE_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/rat_protector.png");
+	public static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat_protector.png");
 
 	public RatProtectorRenderer(EntityRendererProvider.Context context) {
 		super(context, new RatModel<>());
@@ -36,7 +37,7 @@ public class RatProtectorRenderer extends AbstractRatRenderer<RatProtector, RatM
 		public void render(PoseStack stack, MultiBufferSource buffer, int light, RatProtector rat, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 			VertexConsumer vertexBuilder = buffer.getBuffer(RatsRenderType.getYellowGlint());
 			this.getParentModel().setupAnim(rat, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-			this.getParentModel().renderToBuffer(stack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
+			this.getParentModel().renderToBuffer(stack, vertexBuilder, light, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.colorFromFloat(1.0F, 0.5F, 0.5F, 0.5F));
 
 		}
 	}

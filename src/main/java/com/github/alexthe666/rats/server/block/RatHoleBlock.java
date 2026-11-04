@@ -27,9 +27,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.LevelReader;
 
 @SuppressWarnings("deprecation")
 public class RatHoleBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatHoleBlock> CODEC = simpleCodec(RatHoleBlock::new);
+
+	@Override
+	protected MapCodec<RatHoleBlock> codec() {
+		return CODEC;
+	}
 
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -147,7 +156,7 @@ public class RatHoleBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		if (level.getBlockEntity(pos) instanceof RatHoleBlockEntity hole) {
 			return new ItemStack(hole.getImitatedBlockState().getBlock());
 		}

@@ -1,0 +1,7 @@
+{
+  "type": "rats:archeologist",
+  "ingredient": {
+    "item": "minecraft:emerald"
+  },
+  "result": "rats:gem_of_ratlantis"
+}

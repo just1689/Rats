@@ -26,9 +26,9 @@ public class PlagueHealerItem extends Item {
 
 	@Override
 	public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
-		if (living.hasEffect(RatsEffectRegistry.PLAGUE.get())) {
+		if (living.hasEffect(RatsEffectRegistry.PLAGUE)) {
 			if (level.getRandom().nextDouble() <= this.healChance) {
-				living.removeEffect(RatsEffectRegistry.PLAGUE.get());
+				living.removeEffect(RatsEffectRegistry.PLAGUE);
 			}
 		}
 		if (stack.is(RatsItemRegistry.PLAGUE_STEW.get())) {
@@ -45,7 +45,7 @@ public class PlagueHealerItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable(RatsLangConstants.PLAGUE_HEAL_CHANCE, (int) (this.healChance * 100F)).withStyle(ChatFormatting.GRAY));
 	}
 }

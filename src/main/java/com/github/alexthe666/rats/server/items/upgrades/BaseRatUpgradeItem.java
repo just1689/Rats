@@ -15,16 +15,10 @@ public class BaseRatUpgradeItem extends LoreTagItem {
 	}
 
 	public BaseRatUpgradeItem(Item.Properties properties, int rarity, int textLength) {
-		super(properties, textLength);
+		super(rarity != 0 && rarity != 4 ? properties.rarity(Rarity.values()[rarity]) : properties, textLength);
 		this.rarity = rarity;
 	}
 
-	public Rarity getRarity(ItemStack stack) {
-		if (this.rarity != 0 && this.rarity != 4) {
-			return Rarity.values()[this.rarity];
-		}
-		return super.getRarity(stack);
-	}
 
 	public boolean isFoil(ItemStack stack) {
 		return this.rarity >= 3 || super.isFoil(stack);

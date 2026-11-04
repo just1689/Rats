@@ -15,8 +15,17 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
 
 public class CompressedRatBlock extends HorizontalDirectionalBlock {
+
+	public static final MapCodec<CompressedRatBlock> CODEC = simpleCodec(CompressedRatBlock::new);
+
+	@Override
+	protected MapCodec<CompressedRatBlock> codec() {
+		return CODEC;
+	}
 
 	public CompressedRatBlock(BlockBehaviour.Properties properties) {
 		super(properties);
@@ -35,7 +44,7 @@ public class CompressedRatBlock extends HorizontalDirectionalBlock {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter getter, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext getter, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.compressed_rat.desc").withStyle(ChatFormatting.GRAY));
 	}
 

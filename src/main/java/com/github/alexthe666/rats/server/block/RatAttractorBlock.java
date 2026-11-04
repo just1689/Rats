@@ -28,9 +28,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.phys.AABB;
 
 @SuppressWarnings("deprecation")
 public class RatAttractorBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatAttractorBlock> CODEC = simpleCodec(RatAttractorBlock::new);
+
+	@Override
+	protected MapCodec<RatAttractorBlock> codec() {
+		return CODEC;
+	}
 	public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 	public static final BooleanProperty CONNECTED_UP = BooleanProperty.create("up");
 	private static final VoxelShape AABB = Block.box(4, 0, 4, 12, 8, 12);
@@ -53,7 +63,7 @@ public class RatAttractorBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.rat_attractor.desc").withStyle(ChatFormatting.GRAY));
 	}
 
@@ -104,7 +114,7 @@ public class RatAttractorBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

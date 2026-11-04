@@ -29,7 +29,7 @@ public class RatAutomatonMount extends RatMountBase implements IAnimatedEntity {
 
 	public RatAutomatonMount(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(2.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
 		this.riderY = 2.725F;
 		this.moveControl = new FlyingMoveControl(this, 10, false);
 	}

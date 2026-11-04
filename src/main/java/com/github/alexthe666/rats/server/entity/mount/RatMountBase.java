@@ -88,7 +88,6 @@ public abstract class RatMountBase extends PathfinderMob implements RatMount, Ad
 		return super.isInvulnerableTo(source);
 	}
 
-	@Override
 	public double getPassengersRidingOffset() {
 		return this.riderY;
 	}
@@ -101,7 +100,7 @@ public abstract class RatMountBase extends PathfinderMob implements RatMount, Ad
 			float angle = (0.01745329251F * this.yBodyRot);
 			double extraX = radius * Mth.sin((float) (Math.PI + angle));
 			double extraZ = radius * Mth.cos(angle);
-			double extraY = this.getY() + this.getPassengersRidingOffset() + passenger.getMyRidingOffset();
+			double extraY = this.getY() + this.getPassengersRidingOffset() - passenger.getVehicleAttachmentPoint(this).y();
 			callback.accept(passenger, this.getX() + extraX, extraY, this.getZ() + extraZ);
 			if (passenger instanceof LivingEntity living) {
 				living.yBodyRot = living.yBodyRotO = this.getYRot();

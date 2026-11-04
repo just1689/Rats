@@ -19,9 +19,10 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 
 public abstract class ArrowlikeProjectile extends Projectile {
 	@Nullable
@@ -70,7 +71,7 @@ public abstract class ArrowlikeProjectile extends Projectile {
 	}
 
 	@Override
-	protected void defineSynchedData() {
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
 	}
 
@@ -122,7 +123,7 @@ public abstract class ArrowlikeProjectile extends Projectile {
 		} else {
 			this.inGroundTime = 0;
 			HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
-			if (hitresult.getType() != HitResult.Type.MISS && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, hitresult)) {
+			if (hitresult.getType() != HitResult.Type.MISS && !net.neoforged.neoforge.event.EventHooks.onProjectileImpact(this, hitresult)) {
 				this.onHit(hitresult);
 			}
 
@@ -205,7 +206,7 @@ public abstract class ArrowlikeProjectile extends Projectile {
 		boolean flag = entity.getType() == EntityType.ENDERMAN;
 		int k = entity.getRemainingFireTicks();
 		if (this.isOnFire() && !flag) {
-			entity.setSecondsOnFire(5);
+			entity.igniteForSeconds(5);
 		}
 
 		if (entity.hurt(damagesource, (float) i)) {
@@ -215,8 +216,7 @@ public abstract class ArrowlikeProjectile extends Projectile {
 
 			if (entity instanceof LivingEntity livingentity) {
 				if (!this.level().isClientSide() && entity1 instanceof LivingEntity) {
-					EnchantmentHelper.doPostHurtEffects(livingentity, entity1);
-					EnchantmentHelper.doPostDamageEffects((LivingEntity) entity1, livingentity);
+					EnchantmentHelper.doPostAttackEffects((ServerLevel) this.level(), livingentity, damagesource);
 				}
 			}
 
@@ -295,15 +295,6 @@ public abstract class ArrowlikeProjectile extends Projectile {
 		return false;
 	}
 
-	@Override
-	protected float getEyeHeight(Pose pose, EntityDimensions dimensions) {
-		return 0.13F;
-	}
 
 	public abstract boolean explodesOnHit();
-
-	@Override
-	public Packet<ClientGamePacketListener> getAddEntityPacket() {
-		return NetworkHooks.getEntitySpawningPacket(this);
-	}
 }

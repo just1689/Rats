@@ -13,10 +13,11 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 
 public class GhostPiratRenderer extends AbstractRatRenderer<GhostPirat, RatModel<GhostPirat>> {
 
-	private static final ResourceLocation BASE_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/ghost_pirat/ghost_pirat.png");
+	private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ghost_pirat/ghost_pirat.png");
 
 	public GhostPiratRenderer(EntityRendererProvider.Context context) {
 		super(context, new RatModel<>());
@@ -35,7 +36,7 @@ public class GhostPiratRenderer extends AbstractRatRenderer<GhostPirat, RatModel
 	}
 
 	private static class GhostPiratLayer<T extends AbstractRat> extends RenderLayer<T, RatModel<T>> {
-		private static final ResourceLocation GHOST_OVERLAY = new ResourceLocation(RatsMod.MODID, "textures/entity/ghost_pirat/ghost_pirat_overlay.png");
+		private static final ResourceLocation GHOST_OVERLAY = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ghost_pirat/ghost_pirat_overlay.png");
 
 		public GhostPiratLayer(RenderLayerParent<T, RatModel<T>> parent) {
 			super(parent);
@@ -45,7 +46,7 @@ public class GhostPiratRenderer extends AbstractRatRenderer<GhostPirat, RatModel
 		public void render(PoseStack stack, MultiBufferSource buffer, int light, T rat, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
 			float f = (float) rat.tickCount + partialTicks;
 			VertexConsumer consumer = buffer.getBuffer(RenderType.energySwirl(GHOST_OVERLAY, f * 0.01F, f * 0.01F));
-			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, 0.5F, 0.5F, 0.5F, 1.0F);
+			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.colorFromFloat(1.0F, 0.5F, 0.5F, 0.5F));
 		}
 	}
 }

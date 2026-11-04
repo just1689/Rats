@@ -6,6 +6,7 @@ import net.minecraft.world.item.DyeColor;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.util.FastColor;
 
 public class RatColorUtil {
 
@@ -19,8 +20,8 @@ public class RatColorUtil {
 		if (color == DyeColor.WHITE) {
 			return new float[]{0.9019608F, 0.9019608F, 0.9019608F};
 		} else {
-			float[] afloat = color.getTextureDiffuseColors();
-			return new float[]{afloat[0] * 0.75F, afloat[1] * 0.75F, afloat[2] * 0.75F};
+			int rgb = color.getTextureDiffuseColor();
+			return new float[]{FastColor.ARGB32.red(rgb) / 255.0F * 0.75F, FastColor.ARGB32.green(rgb) / 255.0F * 0.75F, FastColor.ARGB32.blue(rgb) / 255.0F * 0.75F};
 		}
 	}
 }

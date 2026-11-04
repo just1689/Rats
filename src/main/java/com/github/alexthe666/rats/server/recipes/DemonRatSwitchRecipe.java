@@ -11,16 +11,18 @@ import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.item.crafting.CraftingInput;
 
 public class DemonRatSwitchRecipe extends CustomRecipe {
-	public DemonRatSwitchRecipe(ResourceLocation location, CraftingBookCategory category) {
-		super(location, category);
+	public DemonRatSwitchRecipe(CraftingBookCategory category) {
+		super(category);
 	}
 
 	@Override
-	public boolean matches(CraftingContainer container, Level level) {
+	public boolean matches(CraftingInput container, Level level) {
 		ItemStack upgrade = null;
-		for (int i = 0; i < container.getContainerSize(); ++i) {
+		for (int i = 0; i < container.size(); ++i) {
 			ItemStack stack = container.getItem(i);
 			if (!stack.isEmpty()) {
 				if (upgrade != null) {
@@ -38,8 +40,8 @@ public class DemonRatSwitchRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingContainer container, RegistryAccess access) {
-		for (int i = 0; i < container.getContainerSize(); ++i) {
+	public ItemStack assemble(CraftingInput container, HolderLookup.Provider access) {
+		for (int i = 0; i < container.size(); ++i) {
 			ItemStack stack = container.getItem(i);
 			if (!stack.isEmpty() && stack.is(RatsItemRegistry.RAT_UPGRADE_DEMON.get())) {
 				return DemonRatUpgradeItem.getDemonUpgrade(!DemonRatUpgradeItem.isSoulVersion(stack));

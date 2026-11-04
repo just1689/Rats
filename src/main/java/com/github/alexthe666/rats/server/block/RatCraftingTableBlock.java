@@ -20,11 +20,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.core.component.DataComponents;
 
 @SuppressWarnings("deprecation")
 public class RatCraftingTableBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatCraftingTableBlock> CODEC = simpleCodec(RatCraftingTableBlock::new);
+
+	@Override
+	protected MapCodec<RatCraftingTableBlock> codec() {
+		return CODEC;
+	}
 
 	public RatCraftingTableBlock(BlockBehaviour.Properties properties) {
 		super(properties);
@@ -64,25 +73,25 @@ public class RatCraftingTableBlock extends BaseEntityBlock {
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
 		BlockEntity be = level.getBlockEntity(pos);
-		if (stack.hasCustomHoverName() && be instanceof RatCraftingTableBlockEntity table) {
+		if (stack.has(DataComponents.CUSTOM_NAME) && be instanceof RatCraftingTableBlockEntity table) {
 			table.setCustomName(stack.getDisplayName());
 		}
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!player.isCrouching()) {
 			if (level.isClientSide()) {
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			} else {
 				BlockEntity be = level.getBlockEntity(pos);
 				if (be instanceof RatCraftingTableBlockEntity table) {
-					NetworkHooks.openScreen((ServerPlayer) player, table, pos);
+					player.openMenu(table, pos);
 					player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
-					return InteractionResult.CONSUME;
+					return ItemInteractionResult.CONSUME;
 				}
 			}
 		}
-		return InteractionResult.FAIL;
+		return ItemInteractionResult.FAIL;
 	}
 }

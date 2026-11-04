@@ -14,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import com.github.alexthe666.rats.server.misc.StackData;
+import net.minecraft.world.entity.LivingEntity;
 
 public class GildedRatFluteItem extends LoreTagItem {
 
@@ -34,13 +36,13 @@ public class GildedRatFluteItem extends LoreTagItem {
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		ItemStack stack = player.getItemInHand(hand);
-		if (stack.getTag() != null) {
+		if (StackData.has(stack)) {
 			RatShot ratShot = new RatShot(RatsEntityRegistry.RAT_SHOT.get(), level, player);
 			ratShot.setColorVariant(RatVariant.getRandomVariant(player.getRandom(), false));
 			Vec3 vector3d = player.getViewVector(1.0F);
 			ratShot.shoot(vector3d.x(), vector3d.y(), vector3d.z(), 1.0F, 1.5F);
 			level.addFreshEntity(ratShot);
-			stack.hurtAndBreak(1, player, user -> user.broadcastBreakEvent(hand));
+			stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
 			player.swing(hand);
 			player.getCooldowns().addCooldown(this, 10);
 			level.playSound(player, player.blockPosition(), RatsSoundRegistry.getFluteSound(), SoundSource.PLAYERS, 0.5F, 0.75F);

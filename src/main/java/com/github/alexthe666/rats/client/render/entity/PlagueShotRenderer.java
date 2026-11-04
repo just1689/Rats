@@ -17,7 +17,7 @@ import net.minecraft.util.Mth;
 
 public class PlagueShotRenderer extends EntityRenderer<PlagueShot> {
 
-	private static final ResourceLocation TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/plague_cloud.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/plague_cloud.png");
 	private static final RatlanteanSpiritModel<PlagueShot> MODEL_SPIRIT = new RatlanteanSpiritModel<>();
 
 	public PlagueShotRenderer(EntityRendererProvider.Context context) {
@@ -31,7 +31,7 @@ public class PlagueShotRenderer extends EntityRenderer<PlagueShot> {
 		stack.mulPose(Axis.XP.rotationDegrees(-Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
 		stack.translate(0F, -1.5F, 0F);
 		VertexConsumer consumer = ItemRenderer.getFoilBuffer(buffer, RenderType.entityCutoutNoCull(TEXTURE), false, true);
-		MODEL_SPIRIT.renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+		MODEL_SPIRIT.renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, -1);
 		stack.popPose();
 
 		super.render(entity, entityYaw, partialTicks, stack, buffer, light);

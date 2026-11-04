@@ -44,9 +44,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Predicate;
+import com.mojang.serialization.MapCodec;
 
 @SuppressWarnings("deprecation")
 public class RatlanteanAutomatonHeadBlock extends BaseEntityBlock implements WearableOnHead, CustomItemRarity {
+
+	public static final MapCodec<RatlanteanAutomatonHeadBlock> CODEC = simpleCodec(RatlanteanAutomatonHeadBlock::new);
+
+	@Override
+	protected MapCodec<RatlanteanAutomatonHeadBlock> codec() {
+		return CODEC;
+	}
 
 	public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 	private static final Map<Direction, VoxelShape> SHAPES = Maps.newEnumMap(ImmutableMap.of(
@@ -187,7 +195,7 @@ public class RatlanteanAutomatonHeadBlock extends BaseEntityBlock implements Wea
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

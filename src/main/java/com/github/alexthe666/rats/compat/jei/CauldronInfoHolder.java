@@ -4,5 +4,5 @@ import mezz.jei.api.recipe.category.extensions.IRecipeCategoryExtension;
 import net.minecraft.world.level.ItemLike;
 
 public record CauldronInfoHolder(ItemLike additionStack, ItemLike cauldronContents, ItemLike cauldron,
-								 ItemLike result) implements IRecipeCategoryExtension {
+								 ItemLike result) implements IRecipeCategoryExtension<CauldronInfoHolder> {
 }

@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.util.FastColor;
 
 public class RatlanteanAutomatonModel<T extends Mob & IAnimatedEntity> extends AdvancedEntityModel<T> {
 	public final AdvancedModelBox body;
@@ -172,7 +173,7 @@ public class RatlanteanAutomatonModel<T extends Mob & IAnimatedEntity> extends A
 	}
 
 	public void renderHead(PoseStack stack, VertexConsumer buffer, int light, int overlay, float red, float green, float blue, float alpha) {
-		this.headBase.render(stack, buffer, light, overlay, red, green, blue, alpha);
+		this.headBase.render(stack, buffer, light, overlay, FastColor.ARGB32.colorFromFloat(alpha, red, green, blue));
 	}
 
 	public void setTERotationAngles(float tickCount) {

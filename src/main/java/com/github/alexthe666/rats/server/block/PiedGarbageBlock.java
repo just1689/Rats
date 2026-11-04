@@ -7,8 +7,16 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import com.mojang.serialization.MapCodec;
 
 public class PiedGarbageBlock extends AbstractGarbageBlock {
+
+	public static final MapCodec<PiedGarbageBlock> CODEC = simpleCodec(PiedGarbageBlock::new);
+
+	@Override
+	protected MapCodec<PiedGarbageBlock> codec() {
+		return CODEC;
+	}
 
 	public PiedGarbageBlock(BlockBehaviour.Properties properties) {
 		super(properties, 1.0D);

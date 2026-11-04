@@ -1,4 +1,10 @@
-// 1.20.1	2023-06-20T18:40:46.8670984	Registries
-e1a77fa56f1fe89985cdf6e2c7c0a32e2c5c8100 data/rats/forge/biome_modifier/add_demon_rat_spawns.json
-6019340efc599e5aa0b3980439f73ec1f229518d data/rats/forge/biome_modifier/add_piper_spawns.json
-06b8df6b9ff069a161b882a2a0ef0a671debb768 data/rats/forge/biome_modifier/add_rat_spawns.json
+// 1.21.1	2026-11-04T20:33:10.393915	Registries
+cde03409e73fb560f784fe4438aaf52102c98787 data/rats/banner_pattern/cheese.json
+382b9e8213022f175381e9f4dbef078b17fd9eea data/rats/banner_pattern/rat.json
+aba95f1bef46dec9e9fa336d52550dcb33e6155b data/rats/banner_pattern/rat_and_crossbones.json
+52276d51bde64417b9bf2b7097137e87ab422200 data/rats/banner_pattern/rat_and_sickle.json
+afface19d828857bb0908a183e0b33ce66f607d4 data/rats/jukebox_song/living_mice.json
+573c7cde600b0bc26fa1b8c2a4abb8df149dcf9e data/rats/jukebox_song/mice_on_venus.json
+ab3453d45985141d30e07ebfc40fcacfedde1374 data/rats/neoforge/biome_modifier/add_demon_rat_spawns.json
+03d934f30ec8c3faef4807703048e5bc497a25b7 data/rats/neoforge/biome_modifier/add_piper_spawns.json
+4e8d2dfde4eede21e675fd32c39db1eec6a80463 data/rats/neoforge/biome_modifier/add_rat_spawns.json

@@ -29,10 +29,12 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import com.github.alexthe666.rats.server.misc.StackData;
+import net.minecraft.server.level.ServerLevel;
 
 public class RatArrow extends AbstractArrow {
 
@@ -44,12 +46,12 @@ public class RatArrow extends AbstractArrow {
 	}
 
 	public RatArrow(EntityType<? extends AbstractArrow> type, Level level, LivingEntity shooter, ItemStack stack) {
-		super(type, shooter, level);
+		super(type, shooter, level, new ItemStack(Items.ARROW), null);
 		this.stack = stack;
 	}
 
 	@Override
-	protected ItemStack getPickupItem() {
+	protected ItemStack getDefaultPickupItem() {
 		return new ItemStack(Items.ARROW);
 	}
 
@@ -57,15 +59,15 @@ public class RatArrow extends AbstractArrow {
 		if (this.pickup == Pickup.ALLOWED) {
 			TamedRat rat = new TamedRat(RatsEntityRegistry.TAMED_RAT.get(), this.level());
 			CompoundTag ratTag = new CompoundTag();
-			if (this.stack.getTag() != null && !this.stack.getTag().getCompound("Rat").isEmpty()) {
-				ratTag = this.stack.getTag().getCompound("Rat");
+			if (StackData.has(this.stack) && !StackData.getOrEmpty(this.stack).getCompound("Rat").isEmpty()) {
+				ratTag = StackData.getOrEmpty(this.stack).getCompound("Rat");
 			}
 			rat.readAdditionalSaveData(ratTag);
 			if (!ratTag.getString("CustomName").isEmpty()) {
-				rat.setCustomName(Component.Serializer.fromJson(ratTag.getString("CustomName")));
+				rat.setCustomName(Component.Serializer.fromJson(ratTag.getString("CustomName"), this.registryAccess()));
 			}
 			if (ratTag.isEmpty()) {
-				ForgeEventFactory.onFinalizeSpawn(rat, (ServerLevelAccessor) this.level(), this.level().getCurrentDifficultyAt(rat.blockPosition()), MobSpawnType.EVENT, null, null);
+				EventHooks.finalizeMobSpawn(rat, (ServerLevelAccessor) this.level(), this.level().getCurrentDifficultyAt(rat.blockPosition()), MobSpawnType.EVENT, null);
 				if (this.getOwner() instanceof Player player) {
 					rat.tame(player);
 				}
@@ -122,7 +124,7 @@ public class RatArrow extends AbstractArrow {
 		boolean flag = entity.getType() == EntityType.ENDERMAN;
 		int k = entity.getRemainingFireTicks();
 		if (this.isOnFire() && !flag) {
-			entity.setSecondsOnFire(5);
+			entity.igniteForSeconds(5);
 		}
 
 		if (entity.hurt(damagesource, (float) i)) {
@@ -139,17 +141,10 @@ public class RatArrow extends AbstractArrow {
 					livingentity.setArrowCount(livingentity.getArrowCount() + 1);
 				}
 
-				if (this.getKnockback() > 0) {
-					double d0 = Math.max(0.0D, 1.0D - livingentity.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
-					Vec3 vec3 = this.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D).normalize().scale((double) this.getKnockback() * 0.6D * d0);
-					if (vec3.lengthSqr() > 0.0D) {
-						livingentity.push(vec3.x, 0.1D, vec3.z);
-					}
-				}
+				this.doKnockback(livingentity, damagesource);
 
 				if (!this.level().isClientSide() && entity1 instanceof LivingEntity living) {
-					EnchantmentHelper.doPostHurtEffects(livingentity, entity1);
-					EnchantmentHelper.doPostDamageEffects(living, livingentity);
+					EnchantmentHelper.doPostAttackEffects((ServerLevel) this.level(), livingentity, damagesource);
 				}
 
 				this.doPostHurtEffects(livingentity);

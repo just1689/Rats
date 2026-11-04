@@ -4,6 +4,7 @@ import com.github.alexthe666.rats.client.render.RatsRenderType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.FastColor;
 
 public class GhostPiratHatModel extends PiratHatModel {
 	public GhostPiratHatModel(ModelPart root) {
@@ -11,7 +12,7 @@ public class GhostPiratHatModel extends PiratHatModel {
 	}
 
 	@Override
-	public void renderToBuffer(PoseStack stack, VertexConsumer builder, int light, int overlay, float red, float green, float blue, float scale) {
-		super.renderToBuffer(stack, builder, 0xF000F0, overlay, red, green, blue, scale);
+	public void renderToBuffer(PoseStack stack, VertexConsumer builder, int light, int overlay, int color) {
+		super.renderToBuffer(stack, builder, 0xF000F0, overlay, color);
 	}
 }

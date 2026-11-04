@@ -1,0 +1,7 @@
+{
+  "type": "rats:chef",
+  "ingredient": {
+    "item": "rats:centipede"
+  },
+  "result": "rats:potato_knishes"
+}

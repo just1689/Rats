@@ -16,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.LightLayer;
 
 public class RatEyesLayer<T extends AbstractRat, M extends AbstractRatModel<T>> extends RenderLayer<T, M> {
-	protected static final RenderType EYES = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/rat/eyes/glow.png"));
-	protected static final RenderType PLAGUE_EYES = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/rat/eyes/plague.png"));
+	protected static final RenderType EYES = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/eyes/glow.png"));
+	protected static final RenderType PLAGUE_EYES = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/eyes/plague.png"));
 
 	public RatEyesLayer(RenderLayerParent<T, M> parent) {
 		super(parent);
@@ -38,10 +38,10 @@ public class RatEyesLayer<T extends AbstractRat, M extends AbstractRatModel<T>> 
 		}
 		if (rat instanceof Rat plagueable && plagueable.hasPlague()) {
 			VertexConsumer consumer = buffer.getBuffer(PLAGUE_EYES);
-			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, -1);
 		} else if (brightness < 7) {
 			VertexConsumer consumer = buffer.getBuffer(EYES);
-			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+			this.getParentModel().renderToBuffer(stack, consumer, light, OverlayTexture.NO_OVERLAY, -1);
 		}
 	}
 }

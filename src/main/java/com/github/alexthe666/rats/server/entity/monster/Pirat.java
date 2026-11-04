@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import net.minecraft.world.phys.Vec3;
 
 public class Pirat extends AbstractRat implements RangedAttackMob, Enemy {
 
@@ -93,9 +94,14 @@ public class Pirat extends AbstractRat implements RangedAttackMob, Enemy {
 		}
 	}
 
-	@Override
 	public double getMyRidingOffset() {
 		return 0.3D;
+	}
+
+	//passengers used to be offset with getMyRidingOffset, now the vehicle attachment point does that
+	@Override
+	public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+		return new Vec3(0.0D, -this.getMyRidingOffset(), 0.0D);
 	}
 
 	@Override
@@ -115,8 +121,8 @@ public class Pirat extends AbstractRat implements RangedAttackMob, Enemy {
 	}
 
 	@Nullable
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
-		data = super.finalizeSpawn(accessor, difficulty, type, data, tag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data) {
+		data = super.finalizeSpawn(accessor, difficulty, type, data);
 		this.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(RatlantisItemRegistry.PIRAT_CUTLASS.get()));
 		this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(RatsItemRegistry.PIRAT_HAT.get()));
 		if (!this.isPassenger()) {

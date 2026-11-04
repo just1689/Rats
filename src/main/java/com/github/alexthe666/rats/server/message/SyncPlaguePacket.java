@@ -1,22 +1,38 @@
 package com.github.alexthe666.rats.server.message;
 
+import com.github.alexthe666.rats.RatsMod;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 
-import java.util.function.Supplier;
 
-public record SyncPlaguePacket(int entityId, byte effectId, byte amplifier, int duration, byte flags) {
+public record SyncPlaguePacket(int entityId, int effectId, byte amplifier, int duration, byte flags) implements CustomPacketPayload {
+
+	public static final CustomPacketPayload.Type<SyncPlaguePacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "sync_plague"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, SyncPlaguePacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> encode(packet, buf), SyncPlaguePacket::decode);
+
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
+
 	private static final int FLAG_AMBIENT = 1;
 	private static final int FLAG_VISIBLE = 2;
 	private static final int FLAG_SHOW_ICON = 4;
 
 	public SyncPlaguePacket(int id, MobEffectInstance effect) {
-		this(id, (byte) (MobEffect.getId(effect.getEffect()) & 255), (byte) (effect.getAmplifier() & 255), Math.min(effect.getDuration(), 32767), getFlags(effect));
+		this(id, BuiltInRegistries.MOB_EFFECT.getId(effect.getEffect().value()), (byte) (effect.getAmplifier() & 255), Math.min(effect.getDuration(), 32767), getFlags(effect));
 	}
 
 	private static byte getFlags(MobEffectInstance mobEffectInstance) {
@@ -48,13 +64,13 @@ public record SyncPlaguePacket(int entityId, byte effectId, byte amplifier, int 
 		return (this.flags() & 4) == 4;
 	}
 
-	public static SyncPlaguePacket decode(FriendlyByteBuf buf) {
-		return new SyncPlaguePacket(buf.readVarInt(), buf.readByte(), buf.readByte(), buf.readVarInt(), buf.readByte());
+	public static SyncPlaguePacket decode(RegistryFriendlyByteBuf buf) {
+		return new SyncPlaguePacket(buf.readVarInt(), buf.readVarInt(), buf.readByte(), buf.readVarInt(), buf.readByte());
 	}
 
-	public static void encode(SyncPlaguePacket packet, FriendlyByteBuf buf) {
+	public static void encode(SyncPlaguePacket packet, RegistryFriendlyByteBuf buf) {
 		buf.writeVarInt(packet.entityId());
-		buf.writeByte(packet.effectId());
+		buf.writeVarInt(packet.effectId());
 		buf.writeByte(packet.amplifier());
 		buf.writeVarInt(packet.duration());
 		buf.writeByte(packet.flags());
@@ -62,8 +78,8 @@ public record SyncPlaguePacket(int entityId, byte effectId, byte amplifier, int 
 
 	public static class Handler {
 		@SuppressWarnings("Convert2Lambda")
-		public static void handle(SyncPlaguePacket packet, Supplier<NetworkEvent.Context> context) {
-			context.get().enqueueWork(new Runnable() {
+		public static void handle(SyncPlaguePacket packet, IPayloadContext context) {
+			context.enqueueWork(new Runnable() {
 				@Override
 				public void run() {
 					if (Minecraft.getInstance().level == null) {
@@ -72,7 +88,7 @@ public record SyncPlaguePacket(int entityId, byte effectId, byte amplifier, int 
 
 					Entity entity = Minecraft.getInstance().level.getEntity(packet.entityId());
 					if (entity instanceof LivingEntity living) {
-						MobEffect mobeffect = MobEffect.byId(packet.effectId() & 0xFF);
+						Holder<MobEffect> mobeffect = BuiltInRegistries.MOB_EFFECT.getHolder(packet.effectId()).orElse(null);
 						if (mobeffect != null) {
 							if (packet.duration() == 0) {
 								living.removeEffect(mobeffect);
@@ -84,7 +100,6 @@ public record SyncPlaguePacket(int entityId, byte effectId, byte amplifier, int 
 					}
 				}
 			});
-			context.get().setPacketHandled(true);
 		}
 	}
 }

@@ -33,7 +33,7 @@ public class RatBeastMount extends RatMountBase implements IAnimatedEntity {
 
 	public RatBeastMount(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(1.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -54,9 +54,9 @@ public class RatBeastMount extends RatMountBase implements IAnimatedEntity {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(COLOR_VARIANT, 0);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(COLOR_VARIANT, 0);
 	}
 
 
@@ -99,11 +99,11 @@ public class RatBeastMount extends RatMountBase implements IAnimatedEntity {
 	}
 
 	@Override
-	public EntityDimensions getDimensions(Pose pose) {
+	public EntityDimensions getDefaultDimensions(Pose pose) {
 		if (this.getAnimation() == ANIMATION_SLASH || this.getAnimation() == ANIMATION_SNIFF) {
 			return EntityDimensions.fixed(1.85F, 2.25F);
 		}
-		return super.getDimensions(pose);
+		return super.getDefaultDimensions(pose);
 	}
 
 	public int getColorVariant() {
@@ -130,8 +130,8 @@ public class RatBeastMount extends RatMountBase implements IAnimatedEntity {
 	}
 
 	@Nullable
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData, @Nullable CompoundTag dataTag) {
-		spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData, dataTag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType reason, @Nullable SpawnGroupData spawnData) {
+		spawnData = super.finalizeSpawn(level, difficulty, reason, spawnData);
 		this.setColorVariant(this.getRandom().nextInt(4));
 		return spawnData;
 	}

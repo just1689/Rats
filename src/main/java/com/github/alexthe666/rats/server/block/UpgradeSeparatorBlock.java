@@ -23,9 +23,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.phys.AABB;
 
 @SuppressWarnings("deprecation")
 public class UpgradeSeparatorBlock extends BaseEntityBlock {
+
+	public static final MapCodec<UpgradeSeparatorBlock> CODEC = simpleCodec(UpgradeSeparatorBlock::new);
+
+	@Override
+	protected MapCodec<UpgradeSeparatorBlock> codec() {
+		return CODEC;
+	}
 	protected static final VoxelShape AABB = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D);
 
 	public UpgradeSeparatorBlock(BlockBehaviour.Properties properties) {
@@ -43,7 +53,7 @@ public class UpgradeSeparatorBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.upgrade_separator.desc").withStyle(ChatFormatting.GRAY));
 	}
 
@@ -60,7 +70,7 @@ public class UpgradeSeparatorBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

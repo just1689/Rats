@@ -10,6 +10,9 @@ import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.ItemContainerContents;
+import com.github.alexthe666.rats.server.items.upgrades.interfaces.CombinedUpgrade;
 
 public class RatUpgradeContainer implements WorldlyContainer {
 	public final ItemStack upgradeStack;
@@ -17,16 +20,13 @@ public class RatUpgradeContainer implements WorldlyContainer {
 
 	public RatUpgradeContainer(ItemStack upgradeStack) {
 		this.upgradeStack = upgradeStack;
-		this.readFromNBT(upgradeStack.getOrCreateTag());
-	}
-
-	private void readFromNBT(CompoundTag tagCompound) {
 		this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(tagCompound, this.items);
+		upgradeStack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY).copyInto(this.items);
 	}
 
-	private void writeToNBT(CompoundTag tagCompound) {
-		ContainerHelper.saveAllItems(tagCompound, this.items);
+
+	private void writeToStack() {
+		CombinedUpgrade.setUpgrades(this.upgradeStack, this.items);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class RatUpgradeContainer implements WorldlyContainer {
 	public void setItem(int index, ItemStack stack) {
 		ItemStack itemstack = this.items.get(index);
 		this.items.set(index, stack);
-		boolean flag = !stack.isEmpty() && stack.is(itemstack.getItem()) && ItemStack.isSameItemSameTags(stack, itemstack);
+		boolean flag = !stack.isEmpty() && stack.is(itemstack.getItem()) && ItemStack.isSameItemSameComponents(stack, itemstack);
 		if (stack.getCount() > this.getMaxStackSize()) {
 			stack.setCount(this.getMaxStackSize());
 		}
@@ -75,7 +75,7 @@ public class RatUpgradeContainer implements WorldlyContainer {
 
 	@Override
 	public void setChanged() {
-		this.writeToNBT(this.upgradeStack.getOrCreateTag());
+		this.writeToStack();
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class RatUpgradeContainer implements WorldlyContainer {
 
 	@Override
 	public void stopOpen(Player player) {
-		this.writeToNBT(this.upgradeStack.getOrCreateTag());
+		this.writeToStack();
 	}
 
 	@Override

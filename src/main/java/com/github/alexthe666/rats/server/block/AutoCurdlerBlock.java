@@ -32,17 +32,28 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @SuppressWarnings("deprecation")
 public class AutoCurdlerBlock extends BaseEntityBlock {
+
+	public static final MapCodec<AutoCurdlerBlock> CODEC = simpleCodec(AutoCurdlerBlock::new);
+
+	@Override
+	protected MapCodec<AutoCurdlerBlock> codec() {
+		return CODEC;
+	}
 
 	public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.Plane.HORIZONTAL);
 	private static final VoxelShape AABB_BASE = Block.box(1, 0, 1, 15, 8, 15);
@@ -55,7 +66,7 @@ public class AutoCurdlerBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.auto_curdler.desc0").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("block.rats.auto_curdler.desc1").withStyle(ChatFormatting.GRAY));
 	}
@@ -76,13 +87,13 @@ public class AutoCurdlerBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!player.isShiftKeyDown()) {
 			ItemStack stack = player.getItemInHand(hand);
 			if (AutoCurdlerBlockEntity.isMilk(stack) && level.getBlockEntity(pos) instanceof AutoCurdlerBlockEntity te) {
-				if (!level.isClientSide() && FluidUtil.getFluidHandler(stack).resolve().isPresent()) {
+				if (!level.isClientSide() && FluidUtil.getFluidHandler(stack).isPresent()) {
 					FluidStack fluidStack = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
-					IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(stack).resolve().get();
+					IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(stack).get();
 					FluidStack drain = fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE);
 					if (drain.getAmount() > 0 || stack.is(Items.MILK_BUCKET)) {
 						if (te.getTank().fill(fluidStack.copy(), IFluidHandler.FluidAction.SIMULATE) != 0) {
@@ -100,20 +111,20 @@ public class AutoCurdlerBlock extends BaseEntityBlock {
 									player.getInventory().add(new ItemStack(Items.BUCKET));
 								}
 							}
-							RatsNetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new UpdateCurdlerFluidPacket(pos.asLong(), te.getTank().getFluid()));
+							PacketDistributor.sendToAllPlayers(new UpdateCurdlerFluidPacket(pos.asLong(), te.getTank().getFluid()));
 						}
 					}
 				}
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			}
 			if (level.isClientSide()) {
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			} else {
 				player.openMenu(this.getMenuProvider(state, level, pos));
-				return InteractionResult.CONSUME;
+				return ItemInteractionResult.CONSUME;
 			}
 		}
-		return InteractionResult.PASS;
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override

@@ -1,10 +1,10 @@
-// 1.20.1	2023-09-27T21:56:04.2291855	ratlantis/Registries
+// 1.21.1	2026-11-04T20:33:10.399317	ratlantis/Registries
 4da99d28fea92a1dd7f6aa73d09190e07e7f25f2 data/minecraft/datapacks/ratlantis/data/rats/dimension/ratlantis.json
-d3e82d2d75d73e6a4f18fc5df4c1629def4250f2 data/minecraft/datapacks/ratlantis/data/rats/dimension_type/ratlantis_type.json
+c315b5bfc90b1ed6cf86c6e40a0d95983ab80c7b data/minecraft/datapacks/ratlantis/data/rats/dimension_type/ratlantis_type.json
 804afbad1b2894df7939cd5c2733fe6f3f770821 data/minecraft/datapacks/ratlantis/data/rats/trim_material/gem_of_ratlantis.json
 ea650c43124eb63b06b8e34cb16b880348e4c788 data/minecraft/datapacks/ratlantis/data/rats/trim_material/oratchalcum.json
-4eb984187fcb36f4ac1bf2f5d9030fd92ce6b8de data/minecraft/datapacks/ratlantis/data/rats/worldgen/biome/ratlantis.json
-34e66eb4efe705cd12474e55dc8d9b15ab648679 data/minecraft/datapacks/ratlantis/data/rats/worldgen/configured_carver/ratlantis_caves.json
+c23d4299d83491c09abfd4c5dba041f43c8bde5a data/minecraft/datapacks/ratlantis/data/rats/worldgen/biome/ratlantis.json
+f90bad290c61903456a7cd1c3ae2b53a952f6dfe data/minecraft/datapacks/ratlantis/data/rats/worldgen/configured_carver/ratlantis_caves.json
 ff32f0d85356acd0ff02fff866b40f86f82f06f7 data/minecraft/datapacks/ratlantis/data/rats/worldgen/configured_feature/cheese_ore.json
 2a999204261a16ce240928dcf9a01621ec1d5a85 data/minecraft/datapacks/ratlantis/data/rats/worldgen/configured_feature/ghost_pirat_tree.json
 6a139412460cabaff5bf38d9b4cb447bc3492b42 data/minecraft/datapacks/ratlantis/data/rats/worldgen/configured_feature/large_ghost_pirat_tree.json
@@ -22,7 +22,7 @@ af1f4f322d3e3626a3ed4535255afd439a667a46 data/minecraft/datapacks/ratlantis/data
 ed5bd82d53f277efbb9b1894e25f17dd6d7a679a data/minecraft/datapacks/ratlantis/data/rats/worldgen/placed_feature/ratglove_flowers.json
 91667b95bac8b1d25493aa9620563936490d2276 data/minecraft/datapacks/ratlantis/data/rats/worldgen/placed_feature/ratlantean_gem_ore.json
 2812b8b9073b3d4347146dea7905116c32b49ddb data/minecraft/datapacks/ratlantis/data/rats/worldgen/placed_feature/small_ruins.json
-362e656cbb3cc124d5b66787da44ddbcdd2c8cc5 data/minecraft/datapacks/ratlantis/data/rats/worldgen/processor_list/ruin_ruins.json
+ef54338ace8055533f9d7c4a0e17be5eb9bb21b7 data/minecraft/datapacks/ratlantis/data/rats/worldgen/processor_list/ruin_ruins.json
 83aa6385ac9c87bb33e2677bf708064c409b0c07 data/minecraft/datapacks/ratlantis/data/rats/worldgen/structure/baron_runway.json
 073fc76d74b5214527d5d73f3b07cef13ad9698a data/minecraft/datapacks/ratlantis/data/rats/worldgen/structure/dutchrat_ship.json
 08e77c33f5b104c17cec07b0e7c017816f9b29db data/minecraft/datapacks/ratlantis/data/rats/worldgen/structure_set/baron_runway.json

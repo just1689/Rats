@@ -5,10 +5,11 @@ import com.google.common.collect.Lists;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class RatCraftingResultSlot extends SlotItemHandler {
 
@@ -71,12 +72,12 @@ public class RatCraftingResultSlot extends SlotItemHandler {
 	protected void checkTakeAchievements(ItemStack stack) {
 		if (this.amountCrafted > 0) {
 			stack.onCraftedBy(this.player.level(), this.player, this.amountCrafted);
-			this.table.matrixWrapper.ifPresent(h -> ForgeEventFactory.firePlayerCraftingEvent(this.player, stack, h));
+			this.table.matrixWrapper.ifPresent(h -> EventHooks.firePlayerCraftingEvent(this.player, stack, h));
 		}
 		this.amountCrafted = 0;
 
-		Recipe<?> recipe = this.table.getRecipeUsed();
-		if (recipe != null && !recipe.isSpecial()) {
+		RecipeHolder<?> recipe = this.table.getRecipeUsed();
+		if (recipe != null && !recipe.value().isSpecial()) {
 			this.player.awardRecipes(Lists.newArrayList(recipe));
 		}
 	}
@@ -84,8 +85,8 @@ public class RatCraftingResultSlot extends SlotItemHandler {
 	@Override
 	public void onTake(Player player, ItemStack stack) {
 		this.checkTakeAchievements(stack);
-		ForgeHooks.setCraftingPlayer(player);
+		CommonHooks.setCraftingPlayer(player);
 		this.table.updateRecipe();
-		ForgeHooks.setCraftingPlayer(null);
+		CommonHooks.setCraftingPlayer(null);
 	}
 }

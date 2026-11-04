@@ -14,11 +14,12 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.FastColor;
 
 public class DutchratBellRenderer implements BlockEntityRenderer<DutchratBellBlockEntity> {
 
 	private final ModelPart bellBody;
-	private static final RenderType TEXTURE = RatsRenderType.getGlowingTranslucent(new ResourceLocation(RatsMod.MODID, "textures/block/dutchrat_bell.png"));
+	private static final RenderType TEXTURE = RatsRenderType.getGlowingTranslucent(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/block/dutchrat_bell.png"));
 
 	public DutchratBellRenderer(BlockEntityRendererProvider.Context context) {
 		this.bellBody = context.bakeLayer(ModelLayers.BELL).getChild("bell_body");
@@ -44,6 +45,6 @@ public class DutchratBellRenderer implements BlockEntityRenderer<DutchratBellBlo
 		this.bellBody.xRot = f1;
 		this.bellBody.zRot = f2;
 		VertexConsumer consumer = buffer.getBuffer(TEXTURE);
-		this.bellBody.render(stack, consumer, light, overlay, 1.0F, 1.0F, 1.0F, 0.5F);
+		this.bellBody.render(stack, consumer, light, overlay, FastColor.ARGB32.colorFromFloat(0.5F, 1.0F, 1.0F, 1.0F));
 	}
 }

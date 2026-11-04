@@ -11,10 +11,10 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class PlagueMobEffect extends MobEffect {
 
@@ -23,12 +23,12 @@ public class PlagueMobEffect extends MobEffect {
 	}
 
 	@Override
-	public void applyEffectTick(LivingEntity entity, int amplifier) {
-
+	public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+		return true;
 	}
 
 	@Override
-	public boolean isDurationEffectTick(int duration, int amplifier) {
+	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
 		return duration > 0;
 	}
 
@@ -37,20 +37,19 @@ public class PlagueMobEffect extends MobEffect {
 	}
 
 	@Override
-	public void addAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
-		MobEffectInstance effect = entity.getEffect(RatsEffectRegistry.PLAGUE.get());
+	public void onEffectStarted(LivingEntity entity, int amplifier) {
+		MobEffectInstance effect = entity.getEffect(RatsEffectRegistry.PLAGUE);
 		if (!entity.isRemoved() && effect != null && entity.level() instanceof ServerLevel) {
 			entity.playSound(RatsSoundRegistry.PLAGUE_SPREAD.get(), 1.0F, 1.0F);
-			RatsNetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SyncPlaguePacket(entity.getId(), effect));
+			PacketDistributor.sendToPlayersTrackingEntity(entity, new SyncPlaguePacket(entity.getId(), effect));
 		}
-		super.addAttributeModifiers(entity, attributes, amplifier);
+		super.onEffectStarted(entity, amplifier);
 	}
 
-	@Override
-	public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
+	//effects no longer know when they're removed, this is called from MobEffectEvent.Remove and MobEffectEvent.Expired
+	public static void onEffectRemoved(LivingEntity entity) {
 		if (!entity.isRemoved() && entity.level() instanceof ServerLevel) {
-			RatsNetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY.with(() -> entity), new SyncPlaguePacket(entity.getId(), new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 0)));
+			PacketDistributor.sendToPlayersTrackingEntity(entity, new SyncPlaguePacket(entity.getId(), new MobEffectInstance(RatsEffectRegistry.PLAGUE, 0)));
 		}
-		super.removeAttributeModifiers(entity, attributes, amplifier);
 	}
 }

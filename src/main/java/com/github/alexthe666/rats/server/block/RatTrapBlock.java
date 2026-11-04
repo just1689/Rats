@@ -30,9 +30,18 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
 
 @SuppressWarnings("deprecation")
 public class RatTrapBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatTrapBlock> CODEC = simpleCodec(RatTrapBlock::new);
+
+	@Override
+	protected MapCodec<RatTrapBlock> codec() {
+		return CODEC;
+	}
 	public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.Plane.HORIZONTAL);
 	public static final BooleanProperty SHUT = BooleanProperty.create("shut");
 	private static final VoxelShape NS_AABB = Block.box(4, 0, 1, 12, 2, 15);
@@ -110,13 +119,13 @@ public class RatTrapBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		ItemStack itemstack = player.getItemInHand(hand);
 		BlockEntity be = level.getBlockEntity(pos);
 		if (state.getValue(SHUT)) {
 			level.setBlockAndUpdate(pos, state.setValue(SHUT, false));
 			level.playSound(null, pos, RatsSoundRegistry.RAT_TRAP_OPEN.get(), SoundSource.BLOCKS, 1F, 1F);
-			return InteractionResult.SUCCESS;
+			return ItemInteractionResult.SUCCESS;
 		}
 		if (be instanceof RatTrapBlockEntity ratTrap) {
 			if (ratTrap.getBait().isEmpty() && RatUtils.isRatFood(itemstack)) {
@@ -124,7 +133,7 @@ public class RatTrapBlock extends BaseEntityBlock {
 				level.sendBlockUpdated(pos, state, state, 3);
 				itemstack.setCount(0);
 				level.playSound(null, pos, RatsSoundRegistry.RAT_TRAP_ADD_BAIT.get(), SoundSource.BLOCKS, 1.0F, (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.2F + 1.0F);
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			}
 			if (!ratTrap.getBait().isEmpty() && !state.getValue(SHUT) && player.isShiftKeyDown()) {
 				if (!level.isClientSide()) {
@@ -133,11 +142,11 @@ public class RatTrapBlock extends BaseEntityBlock {
 				ratTrap.setBaitStack(ItemStack.EMPTY);
 				level.sendBlockUpdated(pos, state, state, 3);
 				level.playSound(null, pos, RatsSoundRegistry.RAT_TRAP_REMOVE_BAIT.get(), SoundSource.BLOCKS, 1.0F, (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.2F + 1.0F);
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 
 			}
 		}
-		return InteractionResult.PASS;
+		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override

@@ -43,13 +43,13 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Predicate;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class NeoRatlantean extends Monster {
 
@@ -78,7 +78,7 @@ public class NeoRatlantean extends Monster {
 	}
 
 	@Override
-	public boolean canChangeDimensions() {
+	public boolean canChangeDimensions(Level from, Level to) {
 		return false;
 	}
 
@@ -93,14 +93,14 @@ public class NeoRatlantean extends Monster {
 	}
 
 	@Override
-	public float getEyeHeight(Pose pose) {
-		return 0.9F;
+	public EntityDimensions getDefaultDimensions(Pose pose) {
+		return super.getDefaultDimensions(pose).withEyeHeight(0.9F);
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(COLOR_VARIANT, 0);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(COLOR_VARIANT, 0);
 	}
 
 	public int getColorVariant() {
@@ -147,8 +147,8 @@ public class NeoRatlantean extends Monster {
 	}
 
 	@Nullable
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
-		data = super.finalizeSpawn(accessor, difficulty, type, data, tag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data) {
+		data = super.finalizeSpawn(accessor, difficulty, type, data);
 		this.setColorVariant(this.getRandom().nextInt(4));
 		return data;
 	}
@@ -221,7 +221,7 @@ public class NeoRatlantean extends Monster {
 					if (!this.level().isClientSide()) {
 						this.level().addFreshEntity(thrownBlock);
 					}
-					RatsNetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new SyncThrownBlockPacket(thrownBlock.getId(), pos.asLong()));
+					PacketDistributor.sendToAllPlayers(new SyncThrownBlockPacket(thrownBlock.getId(), pos.asLong()));
 					this.level().setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
 					this.summonCooldown = RatConfig.neoratlanteanBlockAttackCooldown;
 				}

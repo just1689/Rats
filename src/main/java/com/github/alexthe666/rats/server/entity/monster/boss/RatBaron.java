@@ -27,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.Vec3;
 
 public class RatBaron extends AbstractRat implements Enemy {
 
@@ -53,9 +54,14 @@ public class RatBaron extends AbstractRat implements Enemy {
 		});
 	}
 
-	@Override
 	public double getMyRidingOffset() {
 		return 0.45D;
+	}
+
+	//passengers used to be offset with getMyRidingOffset, now the vehicle attachment point does that
+	@Override
+	public Vec3 getVehicleAttachmentPoint(Entity vehicle) {
+		return new Vec3(0.0D, -this.getMyRidingOffset(), 0.0D);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
@@ -137,8 +143,8 @@ public class RatBaron extends AbstractRat implements Enemy {
 
 	@Nullable
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
-		data = super.finalizeSpawn(accessor, difficulty, type, data, tag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data) {
+		data = super.finalizeSpawn(accessor, difficulty, type, data);
 		this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(RatlantisItemRegistry.AVIATOR_HAT.get()));
 		this.setGuaranteedDrop(EquipmentSlot.HEAD);
 		if (type != MobSpawnType.MOB_SUMMONED) {
@@ -157,7 +163,7 @@ public class RatBaron extends AbstractRat implements Enemy {
 	}
 
 	@Override
-	public boolean canChangeDimensions() {
+	public boolean canChangeDimensions(Level from, Level to) {
 		return false;
 	}
 

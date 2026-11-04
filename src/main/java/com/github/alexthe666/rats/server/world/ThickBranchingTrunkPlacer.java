@@ -20,10 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import com.mojang.serialization.MapCodec;
 
 public class ThickBranchingTrunkPlacer extends TrunkPlacer {
 
-	public static final Codec<ThickBranchingTrunkPlacer> CODEC = RecordCodecBuilder.create(instance ->
+	public static final MapCodec<ThickBranchingTrunkPlacer> CODEC = RecordCodecBuilder.mapCodec(instance ->
 			trunkPlacerParts(instance).and(instance.group(
 					Codec.INT.fieldOf("trunk_width").forGetter(o -> o.trunkWidth),
 					Codec.INT.fieldOf("base_radius").forGetter(o -> o.baseRadius),

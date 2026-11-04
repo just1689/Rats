@@ -16,7 +16,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.nbt.NbtAccounter;
 
 /**
  * Code borrowed from <a href="https://github.com/BluSunrize/ImmersiveEngineering/blob/1.20.1/src/datagen/java/blusunrize/immersiveengineering/data/StructureUpdater.java">Immersive Enginnering</a>
@@ -46,7 +47,7 @@ public class RatsStructureUpdater implements DataProvider {
 	@Override
 	public CompletableFuture<?> run(@Nonnull CachedOutput cache) {
 		try {
-			for (var entry : this.resources.listResources("structures", location -> true).entrySet())
+			for (var entry : this.resources.listResources("structure", location -> true).entrySet())
 				if (entry.getKey().getNamespace().equals(RatsMod.MODID))
 					this.process(entry.getKey(), entry.getValue(), cache);
 			return CompletableFuture.completedFuture(null);
@@ -56,7 +57,7 @@ public class RatsStructureUpdater implements DataProvider {
 	}
 
 	private void process(ResourceLocation loc, Resource resource, CachedOutput cache) throws IOException {
-		CompoundTag inputNBT = NbtIo.readCompressed(resource.open());
+		CompoundTag inputNBT = NbtIo.readCompressed(resource.open(), NbtAccounter.unlimitedHeap());
 		CompoundTag converted = updateNBT(inputNBT);
 		if (!converted.equals(inputNBT)) {
 			Class<? extends DataFixer> fixerClass = DataFixers.getDataFixer().getClass();

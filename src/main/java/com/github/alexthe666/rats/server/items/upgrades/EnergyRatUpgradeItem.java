@@ -18,12 +18,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EnergyRatUpgradeItem extends BaseRatUpgradeItem implements ChangesOverlayUpgrade, ChangesAIUpgrade, TickRatUpgrade {
 
@@ -41,7 +41,7 @@ public class EnergyRatUpgradeItem extends BaseRatUpgradeItem implements ChangesO
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
 		tooltip.add(Component.translatable(RatsLangConstants.RAT_UPGRADE_ENERGY_DESC0).withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable(RatsLangConstants.RAT_UPGRADE_ENERGY_DESC1).withStyle(ChatFormatting.GRAY));
@@ -54,7 +54,7 @@ public class EnergyRatUpgradeItem extends BaseRatUpgradeItem implements ChangesO
 	@Override
 	public @Nullable RenderType getOverlayTexture(ItemStack stack, TamedRat rat, float partialTicks) {
 		float f = (float) rat.tickCount + partialTicks;
-		return rat.getHeldRF() > 0 ? RenderType.energySwirl(new ResourceLocation(RatsMod.MODID, "textures/entity/psychic.png"), f * 0.01F, f * 0.01F) : null;
+		return rat.getHeldRF() > 0 ? RenderType.energySwirl(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/psychic.png"), f * 0.01F, f * 0.01F) : null;
 	}
 
 	@Override
@@ -66,9 +66,9 @@ public class EnergyRatUpgradeItem extends BaseRatUpgradeItem implements ChangesO
 	public void tick(TamedRat rat) {
 		if (RatConfig.ratsChargeHeldItems && rat.getHeldRF() > 0 && !rat.getMainHandItem().isEmpty()) {
 			ItemStack stack = rat.getMainHandItem();
-			LazyOptional<IEnergyStorage> optional = stack.getCapability(ForgeCapabilities.ENERGY);
-			if (optional.resolve().isPresent()) {
-				IEnergyStorage energyStorage = optional.resolve().get();
+			Optional<IEnergyStorage> optional = Optional.ofNullable(stack.getCapability(Capabilities.EnergyStorage.ITEM));
+			if (optional.isPresent()) {
+				IEnergyStorage energyStorage = optional.get();
 				if (energyStorage.getEnergyStored() < energyStorage.getMaxEnergyStored()) {
 					int energyToTransfer = Math.min(rat.getHeldRF(), this.chargeRate);
 					energyToTransfer = energyStorage.receiveEnergy(energyToTransfer, false);

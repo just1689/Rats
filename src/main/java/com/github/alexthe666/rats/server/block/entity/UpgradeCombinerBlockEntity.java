@@ -29,13 +29,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.core.HolderLookup;
+import com.github.alexthe666.rats.server.items.upgrades.interfaces.CombinedUpgrade;
+import net.minecraft.world.phys.Vec3;
 
 public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, MenuProvider {
 
@@ -50,7 +51,6 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	public int burnDuration;
 	public int cookTime;
 	public int totalCookTime;
-	private final LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
 	private NonNullList<ItemStack> combinerStacks = NonNullList.withSize(4, ItemStack.EMPTY);
 	public final ContainerData data = new ContainerData() {
 		@Override
@@ -97,9 +97,8 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 		}
 	}
 
-	@Override
 	public AABB getRenderBoundingBox() {
-		return new AABB(this.getBlockPos(), this.getBlockPos().offset(1, 2, 1));
+		return new AABB(Vec3.atLowerCornerOf(this.getBlockPos()), Vec3.atLowerCornerOf(this.getBlockPos().offset(1, 2, 1)));
 	}
 
 	@Override
@@ -136,7 +135,7 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	@Override
 	public void setItem(int index, ItemStack stack) {
 		ItemStack itemstack = this.combinerStacks.get(index);
-		boolean flag = !stack.isEmpty() && stack.is(itemstack.getItem()) && ItemStack.isSameItemSameTags(stack, itemstack);
+		boolean flag = !stack.isEmpty() && stack.is(itemstack.getItem()) && ItemStack.isSameItemSameComponents(stack, itemstack);
 		this.combinerStacks.set(index, stack);
 
 		if (stack.getCount() > this.getMaxStackSize()) {
@@ -151,10 +150,10 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	}
 
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.loadAdditional(compound, registries);
 		this.combinerStacks = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(compound, this.combinerStacks);
+		ContainerHelper.loadAllItems(compound, this.combinerStacks, registries);
 		this.burnTime = compound.getInt("BurnTime");
 		this.cookTime = compound.getInt("CookTime");
 		this.totalCookTime = compound.getInt("CookTimeTotal");
@@ -162,12 +161,12 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound) {
-		super.saveAdditional(compound);
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.saveAdditional(compound, registries);
 		compound.putInt("BurnTime", (short) this.burnTime);
 		compound.putInt("CookTime", (short) this.cookTime);
 		compound.putInt("CookTimeTotal", (short) this.totalCookTime);
-		ContainerHelper.saveAllItems(compound, this.combinerStacks);
+		ContainerHelper.saveAllItems(compound, this.combinerStacks, registries);
 	}
 
 	@Override
@@ -279,14 +278,7 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	}
 
 	private ItemStack getCombinerResult(ItemStack combiner, ItemStack stack) {
-		if (!combiner.hasTag()) {
-			combiner.setTag(new CompoundTag());
-		}
-		CompoundTag tag = combiner.getTag();
-		NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
-		if (tag != null && tag.contains("Items")) {
-			ContainerHelper.loadAllItems(tag, nonnulllist);
-		}
+		NonNullList<ItemStack> nonnulllist = CombinedUpgrade.getUpgrades(combiner, 27);
 		int addIndex = -1;
 		for (int i = 0; i < nonnulllist.size(); i++) {
 			if (nonnulllist.get(i) == ItemStack.EMPTY) {
@@ -298,8 +290,7 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 			return combiner.copy();
 		}
 		nonnulllist.set(addIndex, stack.copy());
-		ContainerHelper.saveAllItems(tag, nonnulllist);
-		combiner.setTag(tag);
+		CombinedUpgrade.setUpgrades(combiner, nonnulllist);
 		return combiner.copy();
 	}
 
@@ -356,19 +347,6 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 		return direction == Direction.DOWN && index == 1;
 	}
 
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (!this.remove && facing != null && capability == ForgeCapabilities.ITEM_HANDLER) {
-			if (facing == Direction.UP)
-				return handlers[0].cast();
-			else if (facing == Direction.DOWN)
-				return handlers[1].cast();
-			else
-				return handlers[2].cast();
-		}
-		return super.getCapability(capability, facing);
-	}
 
 	@Override
 	protected Component getDefaultName() {
@@ -378,5 +356,15 @@ public class UpgradeCombinerBlockEntity extends BaseContainerBlockEntity impleme
 	@Override
 	protected AbstractContainerMenu createMenu(int id, Inventory player) {
 		return new UpgradeCombinerMenu(id, this, player, this.data);
+	}
+
+	@Override
+	protected NonNullList<ItemStack> getItems() {
+		return this.combinerStacks;
+	}
+
+	@Override
+	protected void setItems(NonNullList<ItemStack> items) {
+		this.combinerStacks = items;
 	}
 }

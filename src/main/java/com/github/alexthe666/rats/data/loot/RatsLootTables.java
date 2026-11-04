@@ -21,27 +21,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.WritableRegistry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.ProblemReporter;
 
 public class RatsLootTables extends LootTableProvider {
 
-	public RatsLootTables(PackOutput output) {
+	public RatsLootTables(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
 		super(output, Set.of(), List.of(
 				new SubProviderEntry(RatsBlockLootTables::new, LootContextParamSets.BLOCK),
 				new SubProviderEntry(RatsChestLootTables::new, LootContextParamSets.CHEST),
 				new SubProviderEntry(RatsEntityLootTables::new, LootContextParamSets.ENTITY),
 				new SubProviderEntry(RatsGameplayLootTables::new, LootContextParamSets.GIFT),
 				new SubProviderEntry(RatsSpecialLootTables::new, LootContextParamSets.EMPTY)
-		));
+		), registries);
 	}
 
 	@Override
-	protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationtracker) {
+	protected void validate(WritableRegistry<LootTable> registry, ValidationContext context, ProblemReporter.Collector collector) {
 	}
 
 	private static class RatsSpecialLootTables implements LootTableSubProvider {
 
+	private final HolderLookup.Provider registries;
+
+	public RatsSpecialLootTables(HolderLookup.Provider registries) {
+		this.registries = registries;
+	}
+
 		@Override
-		public void generate(BiConsumer<ResourceLocation, LootTable.Builder> builder) {
+		public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> builder) {
 			builder.accept(RatsLootRegistry.RATLANTIS_RAT_EXCLUSIVE_DROPS, LootTable.lootTable()
 					.withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
 							.add(LootItem.lootTableItem(Items.DIAMOND).setWeight(5))

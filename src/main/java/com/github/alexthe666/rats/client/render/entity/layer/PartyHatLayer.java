@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.FastColor;
 
 public class PartyHatLayer<T extends LivingEntity, M extends EntityModel<T>, A extends HumanoidModel<T>> extends RenderLayer<T, M> {
 	private final A outerModel;
@@ -59,10 +60,10 @@ public class PartyHatLayer<T extends LivingEntity, M extends EntityModel<T>, A e
 				stack.scale(0.75F, 0.75F, 0.75F);
 			}
 			boolean flag1 = itemstack.hasFoil();
-			int i = hat.getColor(itemstack);
-			this.renderModel(stack, source, light, flag1, this.partyHat, (float) (i >> 16 & 255) / 255.0F, (float) (i >> 8 & 255) / 255.0F, (float) (i & 255) / 255.0F, new ResourceLocation(RatsMod.MODID, "textures/model/hat/party_hat_layer_1.png"));
-			i = this.invertColor(hat.getColor(itemstack));
-			this.renderModel(stack, source, light, flag1, this.partyHat, (float) (i >> 16 & 255) / 255.0F, (float) (i >> 8 & 255) / 255.0F, (float) (i & 255) / 255.0F, new ResourceLocation(RatsMod.MODID, "textures/model/hat/party_hat_layer_2.png"));
+			int i = PartyHatItem.getColor(itemstack);
+			this.renderModel(stack, source, light, flag1, this.partyHat, (float) (i >> 16 & 255) / 255.0F, (float) (i >> 8 & 255) / 255.0F, (float) (i & 255) / 255.0F, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/model/hat/party_hat_layer_1.png"));
+			i = this.invertColor(PartyHatItem.getColor(itemstack));
+			this.renderModel(stack, source, light, flag1, this.partyHat, (float) (i >> 16 & 255) / 255.0F, (float) (i >> 8 & 255) / 255.0F, (float) (i & 255) / 255.0F, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/model/hat/party_hat_layer_2.png"));
 			stack.popPose();
 		}
 	}
@@ -80,7 +81,7 @@ public class PartyHatLayer<T extends LivingEntity, M extends EntityModel<T>, A e
 	}
 
 	private void renderModel(PoseStack stack, MultiBufferSource source, int light, boolean glint, Model model, float red, float green, float blue, ResourceLocation texture) {
-		VertexConsumer vertexconsumer = ItemRenderer.getArmorFoilBuffer(source, RenderType.armorCutoutNoCull(texture), false, glint);
-		model.renderToBuffer(stack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, red, green, blue, 1.0F);
+		VertexConsumer vertexconsumer = ItemRenderer.getArmorFoilBuffer(source, RenderType.armorCutoutNoCull(texture), glint);
+		model.renderToBuffer(stack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.colorFromFloat(1.0F, red, green, blue));
 	}
 }

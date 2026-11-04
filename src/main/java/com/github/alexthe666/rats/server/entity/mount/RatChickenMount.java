@@ -26,14 +26,15 @@ public class RatChickenMount extends RatMountBase {
 
 	public RatChickenMount(EntityType<? extends PathfinderMob> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(1.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
 		this.riderY = 0.55F;
 		this.riderXZ = 0.1F;
 	}
 
 	@Override
-	protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-		return this.isBaby() ? dimensions.height * 0.85F : dimensions.height * 0.92F;
+	public EntityDimensions getDefaultDimensions(Pose pose) {
+		EntityDimensions dimensions = super.getDefaultDimensions(pose);
+		return dimensions.withEyeHeight(dimensions.height() * 0.92F);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {

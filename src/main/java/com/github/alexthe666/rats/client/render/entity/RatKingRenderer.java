@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class RatKingRenderer extends MobRenderer<RatKing, EmptyModel<RatKing>> {
 
-	private static final ResourceLocation TEXTURE_1 = new ResourceLocation(RatsMod.MODID, "textures/entity/rat/black.png");
+	private static final ResourceLocation TEXTURE_1 = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/black.png");
 
 	public RatKingRenderer(EntityRendererProvider.Context context) {
 		super(context, new EmptyModel<>(), 1.0F);
@@ -27,7 +27,7 @@ public class RatKingRenderer extends MobRenderer<RatKing, EmptyModel<RatKing>> {
 	}
 
 	@Override
-	protected void setupRotations(RatKing king, PoseStack stack, float ageInTicks, float yRot, float partialTicks) {
+	protected void setupRotations(RatKing king, PoseStack stack, float ageInTicks, float yRot, float partialTicks, float scale) {
 		if (king.hasCustomName()) {
 			String s = ChatFormatting.stripFormatting(king.getName().getString());
 			if (("Dinnerbone".equals(s) || "Grumm".equals(s))) {

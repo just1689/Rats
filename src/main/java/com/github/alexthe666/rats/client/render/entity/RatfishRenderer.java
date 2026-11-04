@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class RatfishRenderer extends MobRenderer<Ratfish, RatFishModel<Ratfish>> {
-	private static final ResourceLocation TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/ratfish.png");
+	private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/ratfish.png");
 
 	public RatfishRenderer(EntityRendererProvider.Context context) {
 		super(context, new RatFishModel<>(0), 0.3F);
@@ -22,8 +22,8 @@ public class RatfishRenderer extends MobRenderer<Ratfish, RatFishModel<Ratfish>>
 		return TEXTURE;
 	}
 
-	protected void setupRotations(Ratfish entityLiving, PoseStack stack, float ageInTicks, float yRot, float partialTicks) {
-		super.setupRotations(entityLiving, stack, ageInTicks, yRot, partialTicks);
+	protected void setupRotations(Ratfish entityLiving, PoseStack stack, float ageInTicks, float yRot, float partialTicks, float scale) {
+		super.setupRotations(entityLiving, stack, ageInTicks, yRot, partialTicks, scale);
 		float f = 1.0F;
 		float f1 = 1.0F;
 		if (!entityLiving.isInWater()) {

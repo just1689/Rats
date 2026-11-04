@@ -7,10 +7,11 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 public class ChefRecipe extends BaseRatRecipe {
-	public ChefRecipe(ResourceLocation id, String group, Ingredient input, ItemStack output) {
-		super(RatsRecipeRegistry.CHEF.get(), RatsRecipeRegistry.CHEF_SERIALIZER.get(), id, group, input, output);
+	public ChefRecipe(String group, Ingredient input, ItemStack output) {
+		super(RatsRecipeRegistry.CHEF.get(), RatsRecipeRegistry.CHEF_SERIALIZER.get(), group, input, output);
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class ChefRecipe extends BaseRatRecipe {
 	}
 
 	@Override
-	public boolean matches(Container container, Level level) {
-		return this.ingredient.test(container.getItem(0));
+	public boolean matches(SingleRecipeInput input, Level level) {
+		return this.ingredient.test(input.item());
 	}
 }

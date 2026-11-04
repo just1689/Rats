@@ -1,5 +1,7 @@
 package com.github.alexthe666.rats.server.message;
 
+import com.github.alexthe666.rats.RatsMod;
+
 import com.github.alexthe666.rats.RatConfig;
 import com.github.alexthe666.rats.server.entity.rat.TamedRat;
 import net.minecraft.core.BlockPos;
@@ -8,11 +10,23 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
 
-public record SyncRatStaffPacket(int entityId, long pos, int facing, int control, int extraData) {
+public record SyncRatStaffPacket(int entityId, long pos, int facing, int control, int extraData) implements CustomPacketPayload {
+
+	public static final CustomPacketPayload.Type<SyncRatStaffPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "sync_rat_staff"));
+	public static final StreamCodec<RegistryFriendlyByteBuf, SyncRatStaffPacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> encode(packet, buf), SyncRatStaffPacket::decode);
+
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
+
 
 	public SyncRatStaffPacket(int entityId, BlockPos pos, Direction facing, int control) {
 		this(entityId, pos.asLong(), facing.ordinal(), control, 0);
@@ -22,11 +36,11 @@ public record SyncRatStaffPacket(int entityId, long pos, int facing, int control
 		this(entityId, pos.asLong(), facing.ordinal(), control, extraData);
 	}
 
-	public static SyncRatStaffPacket decode(FriendlyByteBuf buf) {
+	public static SyncRatStaffPacket decode(RegistryFriendlyByteBuf buf) {
 		return new SyncRatStaffPacket(buf.readInt(), buf.readLong(), buf.readInt(), buf.readInt(), buf.readInt());
 	}
 
-	public static void encode(SyncRatStaffPacket packet, FriendlyByteBuf buf) {
+	public static void encode(SyncRatStaffPacket packet, RegistryFriendlyByteBuf buf) {
 		buf.writeInt(packet.entityId());
 		buf.writeLong(packet.pos());
 		buf.writeInt(packet.facing());
@@ -35,9 +49,9 @@ public record SyncRatStaffPacket(int entityId, long pos, int facing, int control
 	}
 
 	public static class Handler {
-		public static void handle(SyncRatStaffPacket packet, Supplier<NetworkEvent.Context> context) {
-			context.get().enqueueWork(() -> {
-				Player player = context.get().getSender();
+		public static void handle(SyncRatStaffPacket packet, IPayloadContext context) {
+			context.enqueueWork(() -> {
+				Player player = context.player();
 				if (player != null) {
 					Entity e = player.level().getEntity(packet.entityId());
 					if (e instanceof TamedRat rat) {
@@ -70,7 +84,6 @@ public record SyncRatStaffPacket(int entityId, long pos, int facing, int control
 					}
 				}
 			});
-			context.get().setPacketHandled(true);
 		}
 	}
 }

@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class RatlanteanFlame extends Fireball {
 
@@ -21,7 +23,7 @@ public class RatlanteanFlame extends Fireball {
 	}
 
 	public RatlanteanFlame(Level level, LivingEntity shooter, double accelX, double accelY, double accelZ) {
-		super(RatlantisEntityRegistry.RATLANTEAN_FLAME.get(), shooter.getX(), shooter.getY() + shooter.getBbHeight() * 0.5D, shooter.getZ(), accelX, accelY, accelZ, level);
+		super(RatlantisEntityRegistry.RATLANTEAN_FLAME.get(), shooter.getX(), shooter.getY() + shooter.getBbHeight() * 0.5D, shooter.getZ(), new Vec3(accelX, accelY, accelZ), level);
 		this.setOwner(shooter);
 	}
 
@@ -67,11 +69,13 @@ public class RatlanteanFlame extends Fireball {
 	protected void onHitEntity(EntityHitResult result) {
 		if (this.getOwner() != null) {
 			if (!result.getEntity().fireImmune()) {
-				result.getEntity().setSecondsOnFire(10);
+				result.getEntity().igniteForSeconds(10);
 			}
 			boolean flag = result.getEntity().hurt(this.damageSources().fireball(this, this.getOwner()), 2.0F);
 			if (flag) {
-				this.doEnchantDamageEffects((LivingEntity) this.getOwner(), result.getEntity());
+				if (this.level() instanceof ServerLevel enchantLevel) {
+			EnchantmentHelper.doPostAttackEffects(enchantLevel, result.getEntity(), this.damageSources().mobAttack((LivingEntity) this.getOwner()));
+		}
 			}
 		}
 	}

@@ -24,9 +24,19 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.phys.AABB;
 
 @SuppressWarnings("deprecation")
 public class ChunkyCheeseTokenBlock extends BaseEntityBlock implements CustomItemRarity {
+
+	public static final MapCodec<ChunkyCheeseTokenBlock> CODEC = simpleCodec(ChunkyCheeseTokenBlock::new);
+
+	@Override
+	protected MapCodec<ChunkyCheeseTokenBlock> codec() {
+		return CODEC;
+	}
 
 	private static final VoxelShape AABB = Block.box(4, 4, 4, 12, 12, 12);
 
@@ -35,7 +45,7 @@ public class ChunkyCheeseTokenBlock extends BaseEntityBlock implements CustomIte
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter getter, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext getter, List<Component> tooltip, TooltipFlag flag) {
 		tooltip.add(Component.translatable("block.rats.chunky_cheese_token.desc0").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("block.rats.chunky_cheese_token.desc1").withStyle(ChatFormatting.GRAY));
 	}
@@ -68,7 +78,7 @@ public class ChunkyCheeseTokenBlock extends BaseEntityBlock implements CustomIte
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

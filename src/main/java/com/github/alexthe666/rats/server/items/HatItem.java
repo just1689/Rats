@@ -22,25 +22,27 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.core.Holder;
+import com.github.alexthe666.rats.registry.RatsArmorMaterialRegistry;
 
-public class HatItem extends ArmorItem {
+public class HatItem extends ArmorItem implements ClientExtensionsItem {
 
 	private final int loreLines;
 
-	public HatItem(Item.Properties properties, ArmorMaterial material, int loreLines) {
-		super(material, Type.HELMET, properties);
+	public HatItem(Item.Properties properties, Holder<ArmorMaterial> material, int loreLines) {
+		super(material, Type.HELMET, properties.durability(RatsArmorMaterialRegistry.getDurability(material, Type.HELMET)));
 		this.loreLines = loreLines;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		if (stack.is(RatsItemRegistry.BLACK_DEATH_MASK.get())) {
 			tooltip.add(Component.translatable("item.rats.plague_doctor_mask.desc").withStyle(ChatFormatting.GRAY));
 		}
@@ -144,21 +146,20 @@ public class HatItem extends ArmorItem {
 	}
 
 	@Override
-	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-		String item = ForgeRegistries.ITEMS.getKey(this).getPath();
+	public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+		String item = BuiltInRegistries.ITEM.getKey(this).getPath();
 		if (!item.equals("air")) {
-			return new ResourceLocation(RatsMod.MODID, "textures/model/hat/" + item + ".png").toString();
+			return ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/model/hat/" + item + ".png");
 		}
 		//hehe
-		return "textures/particle/flea_0.png";
+		return ResourceLocation.withDefaultNamespace("textures/particle/flea_0.png");
 	}
 
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+	public void registerClientExtensions(Consumer<IClientItemExtensions> consumer) {
 		consumer.accept(new IClientItemExtensions() {
 			@Override
 			public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-				return switch (ForgeRegistries.ITEMS.getKey(HatItem.this).getPath()) {
+				return switch (BuiltInRegistries.ITEM.getKey(HatItem.this).getPath()) {
 					case "chef_toque" ->
 							new ChefToqueModel(Minecraft.getInstance().getEntityModels().bakeLayer(RatsModelLayers.CHEF_TOQUE));
 					case "piper_hat" ->

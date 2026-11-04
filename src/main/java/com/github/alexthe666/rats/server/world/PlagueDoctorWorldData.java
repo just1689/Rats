@@ -8,6 +8,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
+import net.minecraft.core.HolderLookup;
 
 public class PlagueDoctorWorldData extends SavedData {
 	private static final String IDENTIFIER = "rats_world_data";
@@ -24,7 +25,7 @@ public class PlagueDoctorWorldData extends SavedData {
 		if (level instanceof ServerLevel) {
 			ServerLevel server = level.getServer().getLevel(level.dimension());
 			DimensionDataStorage storage = server.getDataStorage();
-			return storage.computeIfAbsent(PlagueDoctorWorldData::read, PlagueDoctorWorldData::new, IDENTIFIER);
+			return storage.computeIfAbsent(new SavedData.Factory<>(PlagueDoctorWorldData::new, PlagueDoctorWorldData::read), IDENTIFIER);
 		}
 		return null;
 	}
@@ -52,7 +53,7 @@ public class PlagueDoctorWorldData extends SavedData {
 		this.setDirty();
 	}
 
-	public static PlagueDoctorWorldData read(CompoundTag tag) {
+	public static PlagueDoctorWorldData read(CompoundTag tag, HolderLookup.Provider registries) {
 		PlagueDoctorWorldData data = new PlagueDoctorWorldData();
 		if (tag.contains("PlagueDoctorSpawnDelay", 99)) {
 			data.doctorSpawnDelay = tag.getInt("PlagueDoctorSpawnDelay");
@@ -70,7 +71,7 @@ public class PlagueDoctorWorldData extends SavedData {
 	}
 
 	@Override
-	public CompoundTag save(CompoundTag compound) {
+	public CompoundTag save(CompoundTag compound, HolderLookup.Provider registries) {
 		compound.putInt("PlagueDoctorSpawnDelay", this.doctorSpawnDelay);
 		compound.putInt("PlagueDoctorSpawnChance", this.doctorSpawnChance);
 		if (this.doctorID != null) {

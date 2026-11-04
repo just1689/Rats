@@ -18,14 +18,16 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.common.util.FakePlayerFactory;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.EnchantmentTags;
 
 public class RatFishermanGoal extends BaseRatHarvestGoal {
 	private final TamedRat rat;
@@ -134,15 +136,15 @@ public class RatFishermanGoal extends BaseRatHarvestGoal {
 		hook.setPos(this.rat.position());
 		LootParams params = (new LootParams.Builder((ServerLevel) this.rat.level()))
 				.withParameter(LootContextParams.ORIGIN, this.rat.position())
-				.withParameter(LootContextParams.TOOL, EnchantmentHelper.enchantItem(this.rat.getRandom(), new ItemStack(Items.FISHING_ROD), 100, true))
+				.withParameter(LootContextParams.TOOL, EnchantmentHelper.enchantItem(this.rat.getRandom(), new ItemStack(Items.FISHING_ROD), 100, this.rat.registryAccess(), this.rat.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getTag(EnchantmentTags.ON_RANDOM_LOOT)))
 				.withParameter(LootContextParams.THIS_ENTITY, hook)
-				.withParameter(LootContextParams.KILLER_ENTITY, player)
+				.withParameter(LootContextParams.ATTACKING_ENTITY, player)
 				.withLuck(luck + hook.luck)
 				.create(LootContextParamSets.FISHING);
-		List<ItemStack> result = this.rat.level().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING).getRandomItems(params);
+		List<ItemStack> result = this.rat.level().getServer().reloadableRegistries().getLootTable(BuiltInLootTables.FISHING).getRandomItems(params);
 		if (!result.isEmpty()) {
 			ItemFishedEvent event = new ItemFishedEvent(result, 1, hook);
-			MinecraftForge.EVENT_BUS.post(event);
+			NeoForge.EVENT_BUS.post(event);
 			if (!event.isCanceled()) {
 				this.holdItemHarvestedIfPossible(this.rat, result);
 			}

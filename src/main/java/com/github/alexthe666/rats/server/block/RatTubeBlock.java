@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -43,9 +43,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.level.LevelReader;
 
 @SuppressWarnings("deprecation")
 public class RatTubeBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatTubeBlock> CODEC = simpleCodec(RatTubeBlock::new);
+
+	@Override
+	protected MapCodec<RatTubeBlock> codec() {
+		return CODEC;
+	}
 
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -248,9 +258,9 @@ public class RatTubeBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (player.isCrouching() || player.getItemInHand(hand).getItem() instanceof BlockItem || player.getItemInHand(hand).getItem() instanceof RatTubeItem) {
-			return InteractionResult.PASS;
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		} else {
 			Direction side = hit.getDirection();
 			BooleanProperty changing;
@@ -282,7 +292,7 @@ public class RatTubeBlock extends BaseEntityBlock {
 						.setValue(OPEN_DOWN, false));
 				updateTEOpening(level, pos, side, false);
 			}
-			return InteractionResult.SUCCESS;
+			return ItemInteractionResult.SUCCESS;
 		}
 	}
 
@@ -300,16 +310,16 @@ public class RatTubeBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
 		BlockEntity tileentity = level.getBlockEntity(pos);
 		if (tileentity instanceof RatTubeBlockEntity && !player.isCreative()) {
 			Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), getTubeItem(level, pos));
 		}
-		super.playerWillDestroy(level, pos, state, player);
+		return super.playerWillDestroy(level, pos, state, player);
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter getter, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader getter, BlockPos pos, Player player) {
 		return getTubeItem(getter, pos);
 	}
 
@@ -378,10 +388,10 @@ public class RatTubeBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public @Nullable BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
+	public @Nullable PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
 		if (mob instanceof TamedRat rat) {
-			return rat.isInTube() || rat.isInCage() ? BlockPathTypes.WALKABLE : BlockPathTypes.BLOCKED;
+			return rat.isInTube() || rat.isInCage() ? PathType.WALKABLE : PathType.BLOCKED;
 		}
-		return BlockPathTypes.BLOCKED;
+		return PathType.BLOCKED;
 	}
 }

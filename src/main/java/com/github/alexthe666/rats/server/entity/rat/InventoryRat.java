@@ -28,19 +28,17 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.items.wrapper.InvWrapper;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public abstract class InventoryRat extends DiggingRat implements ContainerListener {
 
@@ -52,7 +50,6 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 	private static final EntityDataAccessor<Byte> VISIBILITY_FLAGS = SynchedEntityData.defineId(InventoryRat.class, EntityDataSerializers.BYTE);
 
 	private RatContainer inventory;
-	private LazyOptional<?> itemHandler = null;
 	private boolean inventoryOpen;
 
 	protected InventoryRat(EntityType<? extends TamableAnimal> type, Level level) {
@@ -61,14 +58,14 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(COMMAND, 0);
-		this.getEntityData().define(RADIUS_CENTER, Optional.empty());
-		this.getEntityData().define(HOME_POS, Optional.empty());
-		this.getEntityData().define(SEARCH_RADIUS, RatConfig.defaultRatRadius);
-		this.getEntityData().define(PATROL_NODES, new ArrayList<>());
-		this.getEntityData().define(VISIBILITY_FLAGS, (byte) 0);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(COMMAND, 0);
+		builder.define(RADIUS_CENTER, Optional.empty());
+		builder.define(HOME_POS, Optional.empty());
+		builder.define(SEARCH_RADIUS, RatConfig.defaultRatRadius);
+		builder.define(PATROL_NODES, new ArrayList<>());
+		builder.define(VISIBILITY_FLAGS, (byte) 0);
 	}
 
 	@Override
@@ -80,8 +77,7 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 			if (!itemstack.isEmpty()) {
 				CompoundTag compoundtag = new CompoundTag();
 				compoundtag.putByte("Slot", (byte) i);
-				itemstack.save(compoundtag);
-				listtag.add(compoundtag);
+				listtag.add(itemstack.save(this.registryAccess(), compoundtag));
 			}
 		}
 		tag.put("Items", listtag);
@@ -108,7 +104,7 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 			CompoundTag compoundtag = listtag.getCompound(i);
 			int j = compoundtag.getByte("Slot") & 255;
 			if (j < this.getInventory().getContainerSize()) {
-				this.getInventory().setItem(j, ItemStack.of(compoundtag));
+				this.getInventory().setItem(j, ItemStack.parseOptional(this.registryAccess(), compoundtag));
 			}
 		}
 
@@ -146,26 +142,8 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 		}
 
 		this.getInventory().addListener(this);
-		this.itemHandler = LazyOptional.of(() -> new InvWrapper(this.getInventory()));
 	}
 
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (this.isAlive() && capability == ForgeCapabilities.ITEM_HANDLER && this.itemHandler != null)
-			return this.itemHandler.cast();
-		return super.getCapability(capability, facing);
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		if (this.itemHandler != null) {
-			LazyOptional<?> oldHandler = this.itemHandler;
-			this.itemHandler = null;
-			oldHandler.invalidate();
-		}
-	}
 
 	@Override
 	public boolean canMove() {
@@ -223,11 +201,11 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 			}
 
 			sp.nextContainerCounter();
-			RatsNetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> sp), new OpenRatScreenPacket(sp.containerCounter, this.getId()));
+			PacketDistributor.sendToPlayer(sp, new OpenRatScreenPacket(sp.containerCounter, this.getId()));
 			sp.containerMenu = new RatMenu(sp.containerCounter, this.getInventory(), sp.getInventory());
 			sp.initMenu(sp.containerMenu);
 			this.inventoryOpen = true;
-			MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
+			NeoForge.EVENT_BUS.post(new PlayerContainerEvent.Open(sp, sp.containerMenu));
 		}
 	}
 
@@ -260,7 +238,7 @@ public abstract class InventoryRat extends DiggingRat implements ContainerListen
 	public void setCommandInteger(int command) {
 		if (!this.level().isClientSide() && command != this.getCommandInteger()) {
 			this.getNavigation().stop();
-			this.goalSelector.getRunningGoals().forEach(WrappedGoal::stop);
+			this.goalSelector.getAvailableGoals().stream().filter(WrappedGoal::isRunning).forEach(WrappedGoal::stop);
 			if (this instanceof TamedRat rat) rat.crafting = false;
 		}
 		this.getEntityData().set(COMMAND, command);

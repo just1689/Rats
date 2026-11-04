@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.particles.ColorParticleOption;
 
 public class PlagueBeast extends FeralRatlantean {
 
@@ -64,7 +65,7 @@ public class PlagueBeast extends FeralRatlantean {
 		double d0 = 0D;
 		double d1 = this.getRandom().nextGaussian() * 0.05D + 0.5D;
 		double d2 = 0D;
-		this.level().addParticle(ParticleTypes.ENTITY_EFFECT, this.getX() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), this.getY() + (double) (this.getRandom().nextFloat() * this.getBbHeight()), this.getZ() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), d0, d1, d2);
+		this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) (d0), (float) (d1), (float) (d2)), this.getX() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), this.getY() + (double) (this.getRandom().nextFloat() * this.getBbHeight()), this.getZ() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), 0.0D, 0.0D, 0.0D);
 		if (this.getOwnerId() != null && this.getOwner() != null && this.getOwner() instanceof BlackDeath death) {
 			if (death.getTarget() != null && death.getTarget().isAlive()) {
 				this.setTarget(death.getTarget());
@@ -98,13 +99,13 @@ public class PlagueBeast extends FeralRatlantean {
 
 	@Override
 	public void doExtraEffect(LivingEntity target) {
-		target.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 1200));
+		target.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE, 1200));
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(OWNER_UNIQUE_ID, Optional.empty());
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(OWNER_UNIQUE_ID, Optional.empty());
 	}
 
 	@Override

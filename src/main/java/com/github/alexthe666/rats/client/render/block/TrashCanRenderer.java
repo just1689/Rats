@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class TrashCanRenderer implements BlockEntityRenderer<TrashCanBlockEntity> {
 	private static final TrashCanModel<?> MODEL_TRASH_CAN = new TrashCanModel<>();
-	private static final RenderType TEXTURE = RenderType.entityCutoutNoCull(new ResourceLocation(RatsMod.MODID, "textures/block/trash_can.png"), true);
+	private static final RenderType TEXTURE = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/block/trash_can.png"), true);
 
 	public TrashCanRenderer(BlockEntityRendererProvider.Context context) {
 	}
@@ -32,7 +32,7 @@ public class TrashCanRenderer implements BlockEntityRenderer<TrashCanBlockEntity
 		stack.mulPose(Axis.YP.rotationDegrees(rotation));
 		VertexConsumer consumer = buffer.getBuffer(TEXTURE);
 		MODEL_TRASH_CAN.animate(entity);
-		MODEL_TRASH_CAN.renderToBuffer(stack, consumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+		MODEL_TRASH_CAN.renderToBuffer(stack, consumer, light, overlay, -1);
 		stack.popPose();
 	}
 }

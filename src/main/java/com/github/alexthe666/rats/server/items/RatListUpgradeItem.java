@@ -18,10 +18,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.core.component.DataComponents;
+import com.github.alexthe666.rats.server.items.upgrades.interfaces.CombinedUpgrade;
 
 public class RatListUpgradeItem extends BaseRatUpgradeItem {
 
@@ -34,7 +35,7 @@ public class RatListUpgradeItem extends BaseRatUpgradeItem {
 		ItemStack stack = player.getItemInHand(hand);
 		if (!player.isShiftKeyDown()) {
 			if (!level.isClientSide()) {
-				NetworkHooks.openScreen((ServerPlayer) player, new MenuProvider() {
+				player.openMenu(new MenuProvider() {
 					@Override
 					public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player1) {
 						return new RatUpgradeMenu(id, new RatUpgradeContainer(stack), player1.getInventory(), stack);
@@ -51,13 +52,10 @@ public class RatListUpgradeItem extends BaseRatUpgradeItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
-		CompoundTag tag = stack.getTag();
-
-		if (tag != null && tag.contains("Items", 9)) {
-			NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
-			ContainerHelper.loadAllItems(tag, nonnulllist);
+		if (stack.has(DataComponents.CONTAINER)) {
+			NonNullList<ItemStack> nonnulllist = CombinedUpgrade.getUpgrades(stack, 27);
 			int i = 0;
 			for (ItemStack itemstack : nonnulllist) {
 				if (!itemstack.isEmpty()) {

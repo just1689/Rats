@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.network.syncher.SynchedEntityData;
 
 public class DutchratSword extends ThrowableProjectile {
 
@@ -35,7 +36,7 @@ public class DutchratSword extends ThrowableProjectile {
 	}
 
 	@Override
-	protected void defineSynchedData() {
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
 	}
 
@@ -84,7 +85,7 @@ public class DutchratSword extends ThrowableProjectile {
 	}
 
 	@Override
-	protected float getGravity() {
-		return 0.0f;
+	protected double getDefaultGravity() {
+		return 0.0D;
 	}
 }

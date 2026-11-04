@@ -17,7 +17,7 @@ import net.minecraft.world.level.LightLayer;
 
 public class RatShotRenderer extends EntityRenderer<RatShot> {
 
-	private static final RenderType TEXTURE_EYES = RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/rat/eyes/glow.png"));
+	private static final RenderType TEXTURE_EYES = RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/eyes/glow.png"));
 	private static final StaticRatModel<RatShot> MODEL_STATIC_RAT = new StaticRatModel<>();
 
 	public RatShotRenderer(EntityRendererProvider.Context context) {
@@ -48,11 +48,11 @@ public class RatShotRenderer extends EntityRenderer<RatShot> {
 		float f = (entity.tickCount + partialTicks) * 0.5F;
 		float f1 = 1;
 		MODEL_STATIC_RAT.setupAnim(entity, f, f1, entity.tickCount + partialTicks, 0, 0);
-		MODEL_STATIC_RAT.renderToBuffer(stack, consumer, light, OverlayTexture.pack(OverlayTexture.u(0), OverlayTexture.v(false)), 1.0F, 1.0F, 1.0F, 1.0F);
+		MODEL_STATIC_RAT.renderToBuffer(stack, consumer, light, OverlayTexture.pack(OverlayTexture.u(0), OverlayTexture.v(false)), -1);
 
 		if (brightness < 7) {
 			VertexConsumer iGlowBuffer = buffer.getBuffer(TEXTURE_EYES);
-			MODEL_STATIC_RAT.renderToBuffer(stack, iGlowBuffer, light, OverlayTexture.pack(OverlayTexture.u(0), OverlayTexture.v(false)), 1.0F, 1.0F, 1.0F, 1.0F);
+			MODEL_STATIC_RAT.renderToBuffer(stack, iGlowBuffer, light, OverlayTexture.pack(OverlayTexture.u(0), OverlayTexture.v(false)), -1);
 		}
 		stack.popPose();
 

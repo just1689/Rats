@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.core.particles.ColorParticleOption;
 
 public class PlagueShot extends ArrowlikeProjectile {
 
@@ -44,7 +45,7 @@ public class PlagueShot extends ArrowlikeProjectile {
 			if (this.random.nextBoolean()) {
 				this.level().addParticle(RatsParticleRegistry.BLACK_DEATH.get(), x, y + 0.5D, z, d0, d1, d2);
 			} else {
-				this.level().addParticle(ParticleTypes.ENTITY_EFFECT, x, y + 0.5D, z, d0, d1, d2);
+				this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) (d0), (float) (d1), (float) (d2)), x, y + 0.5D, z, 0.0D, 0.0D, 0.0D);
 
 			}
 		}
@@ -63,7 +64,7 @@ public class PlagueShot extends ArrowlikeProjectile {
 		super.onHitEntity(result);
 		if (result.getEntity() instanceof LivingEntity living) {
 			if (this.getOwner() == null || !living.is(this.getOwner())) {
-				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 1200));
+				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE, 1200));
 			}
 		}
 	}

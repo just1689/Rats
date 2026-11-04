@@ -36,8 +36,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 public class RatlanteanAutomaton extends Monster implements IAnimatedEntity, RangedAttackMob {
@@ -52,7 +52,7 @@ public class RatlanteanAutomaton extends Monster implements IAnimatedEntity, Ran
 
 	public RatlanteanAutomaton(EntityType<? extends Monster> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(2.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(2.0F);
 		this.getNavigation().setCanFloat(true);
 		this.xpReward = 50;
 		this.moveControl = new FlyingMoveControl(this, 10, false);
@@ -101,7 +101,7 @@ public class RatlanteanAutomaton extends Monster implements IAnimatedEntity, Ran
 		if (this.blockBreakCounter > 0) {
 			--this.blockBreakCounter;
 
-			if (this.blockBreakCounter == 0 && ForgeEventFactory.getMobGriefingEvent(this.level(), this)) {
+			if (this.blockBreakCounter == 0 && EventHooks.canEntityGrief(this.level(), this)) {
 				int i1 = Mth.floor(this.getY());
 				int l1 = Mth.floor(this.getX());
 				int i2 = Mth.floor(this.getZ());
@@ -116,7 +116,7 @@ public class RatlanteanAutomaton extends Monster implements IAnimatedEntity, Ran
 							BlockPos blockpos = new BlockPos(i3, k, l);
 							BlockState state = this.level().getBlockState(blockpos);
 							Block block = state.getBlock();
-							if (!(block instanceof LiquidBlock) && this.canDestroyBlock(state, blockpos) && !state.isAir() && block.canEntityDestroy(state, this.level(), blockpos, this) && ForgeEventFactory.onEntityDestroyBlock(this, blockpos, state)) {
+							if (!(block instanceof LiquidBlock) && this.canDestroyBlock(state, blockpos) && !state.isAir() && block.canEntityDestroy(state, this.level(), blockpos, this) && EventHooks.onEntityDestroyBlock(this, blockpos, state)) {
 								flag = this.level().destroyBlock(blockpos, true) || flag;
 							}
 						}
@@ -131,7 +131,7 @@ public class RatlanteanAutomaton extends Monster implements IAnimatedEntity, Ran
 	}
 
 	@Override
-	public boolean canChangeDimensions() {
+	public boolean canChangeDimensions(Level from, Level to) {
 		return false;
 	}
 

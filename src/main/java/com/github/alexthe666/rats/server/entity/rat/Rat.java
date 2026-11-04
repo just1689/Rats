@@ -35,7 +35,6 @@ import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -43,11 +42,15 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.event.EventHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Predicate;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.DyedItemColor;
 
 public class Rat extends DiggingRat {
 
@@ -92,11 +95,11 @@ public class Rat extends DiggingRat {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(PLAGUE, false);
-		this.getEntityData().define(TOGA, false);
-		this.getEntityData().define(RAT_KING_TRANSFORMATION, false);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(PLAGUE, false);
+		builder.define(TOGA, false);
+		builder.define(RAT_KING_TRANSFORMATION, false);
 	}
 
 	@Override
@@ -142,7 +145,7 @@ public class Rat extends DiggingRat {
 			double d0 = 0D;
 			double d1 = this.getRandom().nextGaussian() * 0.05D + 0.5D;
 			double d2 = 0D;
-			this.level().addParticle(ParticleTypes.ENTITY_EFFECT, this.getX() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), this.getY() + (double) (this.getRandom().nextFloat() * this.getBbHeight()), this.getZ() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), d0, d1, d2);
+			this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, (float) (d0), (float) (d1), (float) (d2)), this.getX() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), this.getY() + (double) (this.getRandom().nextFloat() * this.getBbHeight()), this.getZ() + (double) (this.getRandom().nextFloat() * this.getBbWidth() * 2.0F) - (double) this.getBbWidth(), 0.0D, 0.0D, 0.0D);
 		}
 
 		if (this.isBecomingRatKing() && (!this.getMainHandItem().is(RatsItemRegistry.FILTH_CORRUPTION.get()) || this.level().getCurrentDifficultyAt(this.blockPosition()).getDifficulty() == Difficulty.PEACEFUL)) {
@@ -163,8 +166,8 @@ public class Rat extends DiggingRat {
 	}
 
 	@Override
-	public int getExperienceReward() {
-		return this.hasPlague() ? 10 : super.getExperienceReward();
+	protected int getBaseExperienceReward() {
+		return this.hasPlague() ? 10 : super.getBaseExperienceReward();
 	}
 
 	@Nullable
@@ -211,7 +214,7 @@ public class Rat extends DiggingRat {
 		if (this.ratKingTransformTicks == 200 && !this.level().isClientSide()) {
 			RatKing king = new RatKing(RatsEntityRegistry.RAT_KING.get(), this.level());
 			king.copyPosition(this);
-			ForgeEventFactory.onFinalizeSpawn(king, (ServerLevelAccessor) this.level(), this.level().getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.CONVERSION, null, null);
+			EventHooks.finalizeMobSpawn(king, (ServerLevelAccessor) this.level(), this.level().getCurrentDifficultyAt(this.blockPosition()), MobSpawnType.CONVERSION, null);
 			this.level().addFreshEntity(king);
 			this.discard();
 		}
@@ -228,16 +231,16 @@ public class Rat extends DiggingRat {
 	}
 
 	@Override
-	protected void dropCustomDeathLoot(DamageSource source, int looting, boolean playerKill) {
+	protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean playerKill) {
 		if (this.hasToga()) {
 			this.spawnAtLocation(new ItemStack(RatlantisItemRegistry.RAT_TOGA.get()), 0.0F);
 		}
-		super.dropCustomDeathLoot(source, looting, playerKill);
+		super.dropCustomDeathLoot(level, source, playerKill);
 	}
 
 	@Override
-	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data, @Nullable CompoundTag tag) {
-		data = super.finalizeSpawn(accessor, difficulty, type, data, tag);
+	public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance difficulty, MobSpawnType type, @Nullable SpawnGroupData data) {
+		data = super.finalizeSpawn(accessor, difficulty, type, data);
 		if (this.getRandom().nextInt(15) == 0 && this.level().getDifficulty() != Difficulty.PEACEFUL && type != MobSpawnType.CONVERSION) {
 			this.setPlagued(true);
 		}
@@ -253,7 +256,7 @@ public class Rat extends DiggingRat {
 				this.setGuaranteedDrop(EquipmentSlot.HEAD);
 			} else if ((RatsDateFetcher.isNewYearsEve() && this.getRandom().nextFloat() <= 0.25F) || RatsDateFetcher.isAlexsBDay() || RatsDateFetcher.isGizmosBDay() || (RatConfig.ratsSpawnWithPartyHats && this.getRandom().nextInt(100) == 0)) {
 				ItemStack stack = new ItemStack(RatsItemRegistry.PARTY_HAT.get());
-				((DyeableLeatherItem) stack.getItem()).setColor(stack, (int) (this.getRandom().nextFloat() * 0xFFFFFF));
+				stack.set(DataComponents.DYED_COLOR, new DyedItemColor((int) (this.getRandom().nextFloat() * 0xFFFFFF), true));
 				this.setItemSlot(EquipmentSlot.HEAD, stack);
 				this.setGuaranteedDrop(EquipmentSlot.HEAD);
 			} else if (RatsDateFetcher.isPirateDay() && this.getRandom().nextFloat() <= 0.25F) {
@@ -390,9 +393,11 @@ public class Rat extends DiggingRat {
 	public boolean doHurtTarget(Entity entity) {
 		boolean flag = entity.hurt(this.damageSources().mobAttack(this), (float) ((int) this.getAttributeValue(Attributes.ATTACK_DAMAGE)));
 		if (flag && this.hasPlague()) {
-			this.doEnchantDamageEffects(this, entity);
+			if (this.level() instanceof ServerLevel enchantLevel) {
+			EnchantmentHelper.doPostAttackEffects(enchantLevel, entity, this.damageSources().mobAttack(this));
+		}
 			if (entity instanceof LivingEntity living && this.rollForPlague(living)) {
-				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 6000));
+				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE, 6000));
 			}
 		}
 		return flag;
@@ -404,7 +409,7 @@ public class Rat extends DiggingRat {
 			if (entity instanceof Rat rat && !rat.hasPlague()) {
 				rat.setPlagued(true);
 			} else if (entity instanceof LivingEntity living && this.rollForPlague(living)) {
-				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE.get(), 6000));
+				living.addEffect(new MobEffectInstance(RatsEffectRegistry.PLAGUE, 6000));
 			}
 		}
 		super.doPush(entity);

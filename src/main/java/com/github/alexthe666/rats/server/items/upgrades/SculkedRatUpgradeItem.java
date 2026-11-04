@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
+import net.minecraft.core.Holder;
 
 public class SculkedRatUpgradeItem extends BaseRatUpgradeItem implements StatBoostingUpgrade, ChangesTextureUpgrade, GlowingEyesUpgrade {
 	public SculkedRatUpgradeItem(Properties properties) {
@@ -19,7 +20,7 @@ public class SculkedRatUpgradeItem extends BaseRatUpgradeItem implements StatBoo
 
 	@Override
 	public ResourceLocation getTexture() {
-		return new ResourceLocation(RatsMod.MODID, "textures/entity/rat/upgrades/sculked.png");
+		return ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/upgrades/sculked.png");
 	}
 
 	@Override
@@ -29,11 +30,11 @@ public class SculkedRatUpgradeItem extends BaseRatUpgradeItem implements StatBoo
 
 	@Override
 	public RenderType getEyeTexture(ItemStack stack) {
-		return RenderType.eyes(new ResourceLocation(RatsMod.MODID, "textures/entity/rat/eyes/sculked.png"));
+		return RenderType.eyes(ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/rat/eyes/sculked.png"));
 	}
 
 	@Override
-	public Map<Attribute, Double> getAttributeBoosts() {
+	public Map<Holder<Attribute>, Double> getAttributeBoosts() {
 		return Map.of(Attributes.MAX_HEALTH, 18.0D);
 	}
 }

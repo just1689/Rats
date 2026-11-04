@@ -1,5 +1,9 @@
 package com.github.alexthe666.rats.compat.jei;
 
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
+import com.github.alexthe666.rats.server.items.OreRatNuggetItem;
+
 import com.github.alexthe666.rats.RatConfig;
 import com.github.alexthe666.rats.RatsMod;
 import com.github.alexthe666.rats.registry.RatlantisItemRegistry;
@@ -22,10 +26,14 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import com.github.alexthe666.rats.registry.RatsDataComponentRegistry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import org.jetbrains.annotations.Nullable;
 
 @JeiPlugin
 public class RatsJEIPlugin implements IModPlugin {
-	public static final ResourceLocation MOD = new ResourceLocation(RatsMod.MODID, "rats");
+	public static final ResourceLocation MOD = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "rats");
 
 	private void addDescription(IRecipeRegistration registry, ItemStack itemStack) {
 		registry.addIngredientInfo(itemStack, VanillaTypes.ITEM_STACK, Component.translatable(itemStack.getDescriptionId() + ".jei_desc"));
@@ -46,7 +54,7 @@ public class RatsJEIPlugin implements IModPlugin {
 	@Override
 	public void registerRecipes(IRecipeRegistration registry) {
 		RecipeManager manager = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
-		registry.addRecipes(RatsRecipeTypes.CHEF, manager.getAllRecipesFor(RatsRecipeRegistry.CHEF.get()));
+		registry.addRecipes(RatsRecipeTypes.CHEF, manager.getAllRecipesFor(RatsRecipeRegistry.CHEF.get()).stream().map(RecipeHolder::value).toList());
 		this.addDescription(registry, new ItemStack(RatsItemRegistry.CHEESE.get()));
 		this.addDescription(registry, new ItemStack(RatsItemRegistry.CHEESE_STICK.get()));
 		this.addDescription(registry, new ItemStack(RatsItemRegistry.RAT_FLUTE.get()));
@@ -58,7 +66,7 @@ public class RatsJEIPlugin implements IModPlugin {
 		this.addDescription(registry, new ItemStack(RatsBlockRegistry.RAT_CAGE.get()));
 		this.addDescription(registry, new ItemStack(RatsBlockRegistry.RAT_CRAFTING_TABLE.get()));
 		if (RatsMod.RATLANTIS_DATAPACK_ENABLED) {
-			registry.addRecipes(RatsRecipeTypes.ARCHEOLOGIST, manager.getAllRecipesFor(RatsRecipeRegistry.ARCHEOLOGIST.get()));
+			registry.addRecipes(RatsRecipeTypes.ARCHEOLOGIST, manager.getAllRecipesFor(RatsRecipeRegistry.ARCHEOLOGIST.get()).stream().map(RecipeHolder::value).toList());
 			this.addDescription(registry, new ItemStack(RatlantisItemRegistry.RAT_UPGRADE_ARCHEOLOGIST.get()));
 		} else {
 			if (!RatsMod.RATLANTIS_ITEMS.isEmpty()) {
@@ -95,7 +103,17 @@ public class RatsJEIPlugin implements IModPlugin {
 
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistration registration) {
-		registration.useNbtForSubtypes(RatsItemRegistry.RAT_NUGGET_ORE.get());
+		registration.registerSubtypeInterpreter(RatsItemRegistry.RAT_NUGGET_ORE.get(), new ISubtypeInterpreter<>() {
+			@Override
+			public @Nullable Object getSubtypeData(ItemStack stack, UidContext context) {
+				return stack.get(RatsDataComponentRegistry.ORE_ITEM.get());
+			}
+
+			@Override
+			public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+				return BuiltInRegistries.ITEM.getKey(OreRatNuggetItem.getStoredItem(stack, ItemStack.EMPTY).getItem()).toString();
+			}
+		});
 	}
 
 	@Override

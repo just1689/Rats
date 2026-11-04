@@ -36,7 +36,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.event.EventHooks;
+import net.minecraft.world.ItemInteractionResult;
 
 @SuppressWarnings("deprecation")
 public class AirRaidSirenBlock extends Block implements CustomItemRarity {
@@ -58,8 +59,8 @@ public class AirRaidSirenBlock extends Block implements CustomItemRarity {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-		return this.spawnTheBaron(level, pos) ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+		return this.spawnTheBaron(level, pos) ? ItemInteractionResult.sidedSuccess(level.isClientSide()) : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class AirRaidSirenBlock extends Block implements CustomItemRarity {
 			level.setBlockAndUpdate(pos, Blocks.OAK_FENCE.defaultBlockState());
 			RatBaron baron = new RatBaron(RatlantisEntityRegistry.RAT_BARON.get(), level);
 			baron.setPos(pos.getX() + 0.5D, pos.getY() + 5D, pos.getZ() + 0.5D);
-			ForgeEventFactory.onFinalizeSpawn(baron, (ServerLevelAccessor) level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null, null);
+			EventHooks.finalizeMobSpawn(baron, (ServerLevelAccessor) level, level.getCurrentDifficultyAt(pos), MobSpawnType.MOB_SUMMONED, null);
 			baron.restrictTo(pos, 16);
 
 			if (level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
@@ -109,7 +110,7 @@ public class AirRaidSirenBlock extends Block implements CustomItemRarity {
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter getter, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 }

@@ -16,14 +16,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.EnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicInteger;
+import net.minecraft.core.HolderLookup;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class RatCageWheelBlockEntity extends DecoratedRatCageBlockEntity {
 
@@ -32,12 +32,10 @@ public class RatCageWheelBlockEntity extends DecoratedRatCageBlockEntity {
 	private TamedRat wheeler;
 	private int dismountCooldown = 0;
 	private final EnergyStorage energyStorage;
-	private final LazyOptional<EnergyStorage> energyCap;
 
 	public RatCageWheelBlockEntity(BlockPos pos, BlockState state) {
 		super(RatsBlockEntityRegistry.RAT_CAGE_WHEEL.get(), pos, state);
 		this.energyStorage = new EnergyStorage(1000, 10, 10, 0);
-		this.energyCap = LazyOptional.of(() -> this.energyStorage);
 	}
 
 	@Override
@@ -50,21 +48,21 @@ public class RatCageWheelBlockEntity extends DecoratedRatCageBlockEntity {
 	}
 
 	@Override
-	public void saveAdditional(CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
 		compound.putInt("UseTicks", this.useTicks);
-		compound.put("Energy", this.energyStorage.serializeNBT());
+		compound.put("Energy", this.energyStorage.serializeNBT(registries));
 
 		compound.putInt("DismountCooldown", this.dismountCooldown);
-		super.saveAdditional(compound);
+		super.saveAdditional(compound, registries);
 	}
 
 	@Override
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.loadAdditional(compound, registries);
 		this.useTicks = compound.getInt("UseTicks");
 		this.dismountCooldown = compound.getInt("DismountCooldown");
 		if (compound.contains("Energy")) {
-			this.energyStorage.deserializeNBT(compound.get("Energy"));
+			this.energyStorage.deserializeNBT(registries, compound.get("Energy"));
 		}
 	}
 
@@ -132,29 +130,23 @@ public class RatCageWheelBlockEntity extends DecoratedRatCageBlockEntity {
 			if (facing.equals(Direction.UP))
 				continue;
 
-			BlockEntity blockEntity = level.getBlockEntity(pos.relative(facing));
-			if (blockEntity == null)
-				continue;
-			blockEntity.getCapability(ForgeCapabilities.ENERGY, facing.getOpposite()).ifPresent(handler -> {
-				if (handler.canReceive()) {
-					int received = handler.receiveEnergy(Math.min(capacity.get(), 10), false);
-					capacity.addAndGet(-received);
-					this.energyStorage.extractEnergy(received, false);
-					this.setChanged();
-				}
-			});
+			IEnergyStorage handler = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos.relative(facing), facing.getOpposite());
+			if (handler != null && handler.canReceive()) {
+				int received = handler.receiveEnergy(Math.min(capacity.get(), 10), false);
+				capacity.addAndGet(-received);
+				this.energyStorage.extractEnergy(received, false);
+				this.setChanged();
+			}
 		}
+	}
+
+	public EnergyStorage getEnergyStorage() {
+		return this.energyStorage;
 	}
 
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		this.energyCap.invalidate();
 	}
 
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		return capability == ForgeCapabilities.ENERGY ? this.energyCap.cast() : super.getCapability(capability, facing);
-	}
 }

@@ -1,18 +1,20 @@
 package com.github.alexthe666.rats.server.loot;
 
+import com.mojang.serialization.MapCodec;
+
 import com.github.alexthe666.rats.registry.RatsLootRegistry;
 import com.github.alexthe666.rats.registry.worldgen.RatlantisDimensionRegistry;
 import com.github.alexthe666.rats.server.entity.rat.Rat;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.level.storage.loot.Serializer;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 public class RatHasTogaInRatlantisCondition implements LootItemCondition {
+
+	public static final RatHasTogaInRatlantisCondition INSTANCE = new RatHasTogaInRatlantisCondition();
+	public static final MapCodec<RatHasTogaInRatlantisCondition> CODEC = MapCodec.unit(INSTANCE);
+
 
 	@Override
 	public LootItemConditionType getType() {
@@ -25,15 +27,4 @@ public class RatHasTogaInRatlantisCondition implements LootItemCondition {
 		return context.getParam(LootContextParams.THIS_ENTITY) instanceof Rat rat && rat.hasToga() && rat.level().dimension().equals(RatlantisDimensionRegistry.DIMENSION_KEY);
 	}
 
-	public static class ConditionSerializer implements Serializer<RatHasTogaInRatlantisCondition> {
-		@Override
-		public void serialize(JsonObject json, RatHasTogaInRatlantisCondition value, JsonSerializationContext context) {
-
-		}
-
-		@Override
-		public RatHasTogaInRatlantisCondition deserialize(JsonObject json, JsonDeserializationContext context) {
-			return new RatHasTogaInRatlantisCondition();
-		}
-	}
 }

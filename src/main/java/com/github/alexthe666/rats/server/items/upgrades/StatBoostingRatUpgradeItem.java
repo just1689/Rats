@@ -13,24 +13,26 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.Holder;
 
 public class StatBoostingRatUpgradeItem extends BaseRatUpgradeItem implements StatBoostingUpgrade {
 
-	private final Supplier<Map<Attribute, Double>> statChanges;
+	private final Supplier<Map<Holder<Attribute>, Double>> statChanges;
 	private final boolean regens;
 
-	public StatBoostingRatUpgradeItem(Properties properties, int rarity, Supplier<Map<Attribute, Double>> statChanges) {
+	public StatBoostingRatUpgradeItem(Properties properties, int rarity, Supplier<Map<Holder<Attribute>, Double>> statChanges) {
 		this(properties, rarity, 0, statChanges, false);
 	}
 
-	public StatBoostingRatUpgradeItem(Properties properties, int rarity, int textLength, Supplier<Map<Attribute, Double>> statChanges, boolean regens) {
+	public StatBoostingRatUpgradeItem(Properties properties, int rarity, int textLength, Supplier<Map<Holder<Attribute>, Double>> statChanges, boolean regens) {
 		super(properties, rarity, textLength);
 		this.statChanges = statChanges;
 		this.regens = regens;
 	}
 
 	@Override
-	public Map<Attribute, Double> getAttributeBoosts() {
+	public Map<Holder<Attribute>, Double> getAttributeBoosts() {
 		return this.statChanges.get();
 	}
 
@@ -40,11 +42,11 @@ public class StatBoostingRatUpgradeItem extends BaseRatUpgradeItem implements St
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
 		this.statChanges.get().forEach((attribute, aDouble) -> {
 			if (aDouble > 0.0D) {
-				tooltip.add(Component.translatable(RatsLangConstants.RAT_UPGRADE_STAT_BOOST, aDouble.toString(), Component.translatable(attribute.getDescriptionId())).withStyle(ChatFormatting.AQUA));
+				tooltip.add(Component.translatable(RatsLangConstants.RAT_UPGRADE_STAT_BOOST, aDouble.toString(), Component.translatable(attribute.value().getDescriptionId())).withStyle(ChatFormatting.AQUA));
 			}
 		});
 

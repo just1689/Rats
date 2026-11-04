@@ -12,10 +12,11 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.*;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import com.mojang.serialization.MapCodec;
 
 public class CopyInputStateRuleProcessor extends StructureProcessor {
 
-	public static final Codec<CopyInputStateRuleProcessor> CODEC = ProcessorRule.CODEC.listOf().fieldOf("rules").xmap(CopyInputStateRuleProcessor::new, config -> config.rules).codec();
+	public static final MapCodec<CopyInputStateRuleProcessor> CODEC = ProcessorRule.CODEC.listOf().fieldOf("rules").xmap(CopyInputStateRuleProcessor::new, config -> config.rules);
 
 	private final ImmutableList<ProcessorRule> rules;
 

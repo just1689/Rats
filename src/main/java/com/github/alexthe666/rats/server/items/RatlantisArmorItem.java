@@ -13,34 +13,37 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import com.github.alexthe666.rats.registry.RatsArmorMaterialRegistry;
+import com.github.alexthe666.rats.RatsMod;
 
-public class RatlantisArmorItem extends ArmorItem {
+public class RatlantisArmorItem extends ArmorItem implements ClientExtensionsItem {
 
-	public RatlantisArmorItem(ArmorMaterial material, Type type, Item.Properties properties) {
-		super(material, type, properties);
+	public RatlantisArmorItem(Holder<ArmorMaterial> material, Type type, Item.Properties properties) {
+		super(material, type, properties.durability(RatsArmorMaterialRegistry.getDurability(material, type)));
 	}
 
 	@Override
-	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-		return "rats:textures/model/armor/" + (slot == EquipmentSlot.LEGS ? "ratlantis_armor_1" : "ratlantis_armor_0") + ".png";
+	public ResourceLocation getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, ArmorMaterial.Layer layer, boolean innerModel) {
+		return ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/model/armor/" + (slot == EquipmentSlot.LEGS ? "ratlantis_armor_1" : "ratlantis_armor_0") + ".png");
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
 		tooltip.add(Component.translatable("item.rats.ratlantis_armor.desc0").withStyle(ChatFormatting.YELLOW));
 		tooltip.add(Component.translatable("item.rats.ratlantis_armor.desc1").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("item.rats.ratlantis_armor.desc2").withStyle(ChatFormatting.GRAY));
 	}
 
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+	public void registerClientExtensions(Consumer<IClientItemExtensions> consumer) {
 		consumer.accept(new IClientItemExtensions() {
 			@Override
 			public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {

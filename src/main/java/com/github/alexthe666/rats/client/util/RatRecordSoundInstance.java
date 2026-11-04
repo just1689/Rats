@@ -7,15 +7,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.RecordItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.JukeboxSong;
 
 public class RatRecordSoundInstance extends AbstractTickableSoundInstance {
 
 	private final TamedRat rat;
-	private final RecordItem record;
+	private final Item record;
 
-	public RatRecordSoundInstance(TamedRat rat, RecordItem record) {
-		super(record.getSound(), SoundSource.RECORDS, RandomSource.create());
+	public RatRecordSoundInstance(TamedRat rat, Item record, JukeboxSong song) {
+		super(song.soundEvent().value(), SoundSource.RECORDS, RandomSource.create());
 		this.attenuation = Attenuation.LINEAR;
 		this.looping = false;
 		this.rat = rat;

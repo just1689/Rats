@@ -17,10 +17,11 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 
 public class DutchratRenderer extends MobRenderer<Dutchrat, FlyingDutchratModel<Dutchrat>> {
 
-	private static final ResourceLocation DUTCHRAT_TEXTURE = new ResourceLocation(RatsMod.MODID, "textures/entity/dutchrat/dutchrat.png");
+	private static final ResourceLocation DUTCHRAT_TEXTURE = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/dutchrat/dutchrat.png");
 
 	public DutchratRenderer(EntityRendererProvider.Context context) {
 		super(context, new FlyingDutchratModel<>(), 0.5F);
@@ -40,8 +41,8 @@ public class DutchratRenderer extends MobRenderer<Dutchrat, FlyingDutchratModel<
 	}
 
 	public static class DutchratGlowLayer<T extends Dutchrat, M extends FlyingDutchratModel<T>> extends RenderLayer<T, M> {
-		private static final ResourceLocation GLOW_1 = new ResourceLocation(RatsMod.MODID, "textures/entity/dutchrat/dutchrat_glow_1.png");
-		private static final ResourceLocation GLOW_2 = new ResourceLocation(RatsMod.MODID, "textures/entity/dutchrat/dutchrat_glow_2.png");
+		private static final ResourceLocation GLOW_1 = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/dutchrat/dutchrat_glow_1.png");
+		private static final ResourceLocation GLOW_2 = ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "textures/entity/dutchrat/dutchrat_glow_2.png");
 
 		public DutchratGlowLayer(RenderLayerParent<T, M> parent) {
 			super(parent);
@@ -49,10 +50,11 @@ public class DutchratRenderer extends MobRenderer<Dutchrat, FlyingDutchratModel<
 
 		@Override
 		public void render(PoseStack stack, MultiBufferSource buffer, int light, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+			//1.21: requesting another buffer ends the previous one, so each buffer is drawn to before the next is fetched
 			VertexConsumer glow1 = buffer.getBuffer(RatsRenderType.getGlowingTranslucent(GLOW_1));
+			this.getParentModel().renderToBuffer(stack, glow1, light, OverlayTexture.NO_OVERLAY, -1);
 			VertexConsumer glow2 = buffer.getBuffer(RatsRenderType.getGlowingTranslucent(GLOW_2));
-			this.getParentModel().renderToBuffer(stack, glow1, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-			this.getParentModel().renderToBuffer(stack, glow2, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 0.5F);
+			this.getParentModel().renderToBuffer(stack, glow2, light, OverlayTexture.NO_OVERLAY, FastColor.ARGB32.colorFromFloat(0.5F, 1.0F, 1.0F, 1.0F));
 		}
 	}
 }

@@ -23,10 +23,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,16 +34,20 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.neoforged.fml.common.EventBusSubscriber;
+import java.util.Optional;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = RatsMod.MODID)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = RatsMod.MODID)
 public class RatsDataRegistry {
 
 	@SubscribeEvent
 	public static void gatherData(GatherDataEvent event) {
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = event.getGenerator().getPackOutput();
-		CompletableFuture<HolderLookup.Provider> provider = event.getLookupProvider();
 		ExistingFileHelper helper = event.getExistingFileHelper();
+		//datapack registry entries (biome modifiers, banner patterns, jukebox songs) are generated first, everything else gets their lookup
+		BiomeModifierGenerator datapackEntries = generator.addProvider(event.includeServer(), new BiomeModifierGenerator(output, event.getLookupProvider()));
+		CompletableFuture<HolderLookup.Provider> provider = datapackEntries.getRegistryProvider();
 		//TODO remove this method once https://github.com/neoforged/NeoForge/pull/146 is merged
 		addArmorTrims(helper);
 
@@ -60,18 +64,17 @@ public class RatsDataRegistry {
 		generator.addProvider(event.includeServer(), new RatsPoiTags(output, provider, helper));
 
 		generator.addProvider(event.includeServer(), new RatsAdvancementProvider(output, provider, helper));
-		generator.addProvider(event.includeServer(), new BiomeModifierGenerator(output, provider));
-		generator.addProvider(event.includeServer(), new RatsLootTables(output));
-		generator.addProvider(event.includeServer(), new RatsLootModifierGenerator(output));
-		generator.addProvider(event.includeServer(), new RatsRecipes(output));
+		generator.addProvider(event.includeServer(), new RatsLootTables(output, provider));
+		generator.addProvider(event.includeServer(), new RatsLootModifierGenerator(output, provider));
+		generator.addProvider(event.includeServer(), new RatsRecipes(output, provider));
 
 		Path mainPath = Paths.get("src/main/resources").toAbsolutePath();
 		generator.addProvider(event.includeServer(), new RatsStructureUpdater(new PackOutput(mainPath), helper));
 
 		generator.addProvider(true, new PackMetadataGenerator(output).add(PackMetadataSection.TYPE, new PackMetadataSection(
 				Component.translatable(RatsLangConstants.RATS_PACK),
-				DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES),
-				Arrays.stream(PackType.values()).collect(Collectors.toMap(Function.identity(), DetectedVersion.BUILT_IN::getPackVersion)))));
+				DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA),
+				Optional.empty())));
 
 		DataGenerator.PackGenerator ratlantisPack = generator.getBuiltinDatapack(event.includeServer(), "ratlantis");
 
@@ -80,20 +83,20 @@ public class RatsDataRegistry {
 		TagsProvider<Block> ratlantisBlockTags = ratlantisPack.addProvider(ratOutput -> new RatlantisBlockTags(ratOutput, provider, helper));
 		ratlantisPack.addProvider(ratOutput -> new RatlantisEntityTags(ratOutput, provider, helper));
 		ratlantisPack.addProvider(ratOutput -> new RatlantisItemTags(ratOutput, provider, ratlantisBlockTags.contentsGetter(), helper));
-		ratlantisPack.addProvider(RatlantisLootTables::new);
-		ratlantisPack.addProvider(RatlantisRecipes::new);
+		ratlantisPack.addProvider(ratOutput -> new RatlantisLootTables(ratOutput, provider));
+		ratlantisPack.addProvider(ratOutput -> new RatlantisRecipes(ratOutput, provider));
 		ratlantisPack.addProvider(ratOutput -> new PackMetadataGenerator(ratOutput).add(PackMetadataSection.TYPE, new PackMetadataSection(
 				Component.translatable(RatsLangConstants.RATLANTIS_PACK),
-				DetectedVersion.BUILT_IN.getPackVersion(PackType.CLIENT_RESOURCES),
-				Arrays.stream(PackType.values()).collect(Collectors.toMap(Function.identity(), DetectedVersion.BUILT_IN::getPackVersion)))));
+				DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA),
+				Optional.empty())));
 	}
 
 	private static void addArmorTrims(ExistingFileHelper existingFileHelper) {
 		for (ItemModelGenerators.TrimModelData trim : ItemModelGenerators.GENERATED_TRIM_MODELS) {
-			existingFileHelper.trackGenerated(new ResourceLocation("boots_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
-			existingFileHelper.trackGenerated(new ResourceLocation("chestplate_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
-			existingFileHelper.trackGenerated(new ResourceLocation("helmet_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
-			existingFileHelper.trackGenerated(new ResourceLocation("leggings_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
+			existingFileHelper.trackGenerated(ResourceLocation.parse("boots_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
+			existingFileHelper.trackGenerated(ResourceLocation.parse("chestplate_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
+			existingFileHelper.trackGenerated(ResourceLocation.parse("helmet_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
+			existingFileHelper.trackGenerated(ResourceLocation.parse("leggings_trim_" + trim.name()), PackType.CLIENT_RESOURCES, ".png", "textures/trims/items");
 		}
 	}
 }

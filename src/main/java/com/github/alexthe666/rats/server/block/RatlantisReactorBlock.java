@@ -8,8 +8,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
 
 public class RatlantisReactorBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatlantisReactorBlock> CODEC = simpleCodec(RatlantisReactorBlock::new);
+
+	@Override
+	protected MapCodec<RatlantisReactorBlock> codec() {
+		return CODEC;
+	}
 
 	public RatlantisReactorBlock(BlockBehaviour.Properties properties) {
 		super(properties);

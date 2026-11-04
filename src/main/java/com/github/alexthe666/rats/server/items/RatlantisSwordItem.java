@@ -20,7 +20,7 @@ import java.util.List;
 public class RatlantisSwordItem extends SwordItem {
 
 	public RatlantisSwordItem(Item.Properties properties) {
-		super(RatsToolMaterialRegistry.RATLANTIS, 3, -2.4F, properties);
+		super(RatsToolMaterialRegistry.RATLANTIS, properties.attributes(SwordItem.createAttributes(RatsToolMaterialRegistry.RATLANTIS, 3, -2.4F)));
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class RatlantisSwordItem extends SwordItem {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, level, tooltip, flag);
 		tooltip.add(Component.translatable(this.getDescriptionId() + ".desc0").withStyle(ChatFormatting.YELLOW));
 		tooltip.add(Component.translatable(this.getDescriptionId() + ".desc1").withStyle(ChatFormatting.GRAY));

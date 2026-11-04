@@ -10,9 +10,17 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import com.mojang.serialization.MapCodec;
 
 @SuppressWarnings("deprecation")
 public class RatUpgradeBlock extends DirectionalBlock {
+
+	public static final MapCodec<RatUpgradeBlock> CODEC = simpleCodec(RatUpgradeBlock::new);
+
+	@Override
+	protected MapCodec<RatUpgradeBlock> codec() {
+		return CODEC;
+	}
 	public static final DirectionProperty FACING = DirectionalBlock.FACING;
 
 	public RatUpgradeBlock(BlockBehaviour.Properties properties) {

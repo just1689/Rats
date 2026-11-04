@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import net.minecraft.core.component.DataComponents;
 
 public class RatUpgradeUtils {
 
@@ -27,10 +28,8 @@ public class RatUpgradeUtils {
 					return stack;
 				}
 				if (stack.getItem() instanceof CombinedUpgrade combined) {
-					CompoundTag tag = stack.getTag();
-					if (tag != null && tag.contains("Items", 9)) {
-						NonNullList<ItemStack> upgradeList = NonNullList.withSize(combined.getUpgradeSlots(), ItemStack.EMPTY);
-						ContainerHelper.loadAllItems(tag, upgradeList);
+					if (stack.has(DataComponents.CONTAINER)) {
+						NonNullList<ItemStack> upgradeList = CombinedUpgrade.getUpgrades(stack, combined.getUpgradeSlots());
 						for (ItemStack selectedUpgrade : upgradeList) {
 							if (selectedUpgrade.getItem() == item) {
 								return selectedUpgrade;
@@ -59,10 +58,8 @@ public class RatUpgradeUtils {
 					function.accept(stack, slot);
 				}
 				if (stack.getItem() instanceof CombinedUpgrade combined) {
-					CompoundTag tag = stack.getTag();
-					if (tag != null && tag.contains("Items", 9)) {
-						NonNullList<ItemStack> upgradeList = NonNullList.withSize(combined.getUpgradeSlots(), ItemStack.EMPTY);
-						ContainerHelper.loadAllItems(tag, upgradeList);
+					if (stack.has(DataComponents.CONTAINER)) {
+						NonNullList<ItemStack> upgradeList = CombinedUpgrade.getUpgrades(stack, combined.getUpgradeSlots());
 						for (ItemStack selectedUpgrade : upgradeList) {
 							if (upgrade.test(selectedUpgrade.getItem())) {
 								function.accept(selectedUpgrade, slot);
@@ -79,10 +76,8 @@ public class RatUpgradeUtils {
 			ItemStack stack = rat.getItemBySlot(slot);
 			if (!stack.isEmpty()) {
 				if (stack.getItem() instanceof CombinedUpgrade combined) {
-					CompoundTag tag = stack.getTag();
-					if (tag != null && tag.contains("Items", 9)) {
-						NonNullList<ItemStack> upgradeList = NonNullList.withSize(combined.getUpgradeSlots(), ItemStack.EMPTY);
-						ContainerHelper.loadAllItems(tag, upgradeList);
+					if (stack.has(DataComponents.CONTAINER)) {
+						NonNullList<ItemStack> upgradeList = CombinedUpgrade.getUpgrades(stack, combined.getUpgradeSlots());
 						for (ItemStack selectedUpgrade : upgradeList) {
 							if (selectedUpgrade.getItem() instanceof BaseRatUpgradeItem upgrade && function.apply(upgrade) != def) {
 								return function.apply(upgrade);

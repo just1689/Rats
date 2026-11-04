@@ -18,12 +18,12 @@ import net.minecraft.world.entity.Entity;
 
 public class RatStriderMountRenderer extends MobRenderer<RatStriderMount, RatStriderMountModel<RatStriderMount>> {
 
-	private static final ResourceLocation STRIDER_LOCATION = new ResourceLocation("textures/entity/strider/strider.png");
-	private static final ResourceLocation COLD_LOCATION = new ResourceLocation("textures/entity/strider/strider_cold.png");
+	private static final ResourceLocation STRIDER_LOCATION = ResourceLocation.parse("textures/entity/strider/strider.png");
+	private static final ResourceLocation COLD_LOCATION = ResourceLocation.parse("textures/entity/strider/strider_cold.png");
 
 	public RatStriderMountRenderer(EntityRendererProvider.Context context) {
 		super(context, new RatStriderMountModel<>(context.bakeLayer(RatsModelLayers.RAT_STRIDER_MOUNT)), 0.5F);
-		this.addLayer(new AlwaysSaddledLayer<>(this, new RatStriderMountModel<>(context.bakeLayer(RatsModelLayers.RAT_STRIDER_MOUNT)), new ResourceLocation("textures/entity/strider/strider_saddle.png")));
+		this.addLayer(new AlwaysSaddledLayer<>(this, new RatStriderMountModel<>(context.bakeLayer(RatsModelLayers.RAT_STRIDER_MOUNT)), ResourceLocation.parse("textures/entity/strider/strider_saddle.png")));
 	}
 
 	public ResourceLocation getTextureLocation(RatStriderMount mount) {
@@ -49,7 +49,7 @@ public class RatStriderMountRenderer extends MobRenderer<RatStriderMount, RatStr
 			this.model.prepareMobModel(entity, limbSwing, limbSwingAmount, partialTicks);
 			this.model.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 			VertexConsumer vertexconsumer = source.getBuffer(RenderType.entityCutoutNoCull(this.textureLocation));
-			this.model.renderToBuffer(stack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+			this.model.renderToBuffer(stack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, -1);
 		}
 	}
 }

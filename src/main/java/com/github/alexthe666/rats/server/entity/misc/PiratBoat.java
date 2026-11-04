@@ -30,18 +30,20 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.WaterlilyBlock;
-import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 
 public class PiratBoat extends Mob {
 	private static final EntityDataAccessor<Boolean> FIRING = SynchedEntityData.defineId(PiratBoat.class, EntityDataSerializers.BOOLEAN);
@@ -57,18 +59,17 @@ public class PiratBoat extends Mob {
 
 	public PiratBoat(EntityType<? extends Mob> type, Level level) {
 		super(type, level);
-		this.setMaxUpStep(1.0F);
-		this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
-		this.setPathfindingMalus(BlockPathTypes.WALKABLE, -1.0F);
+		this.getAttribute(Attributes.STEP_HEIGHT).setBaseValue(1.0F);
+		this.setPathfindingMalus(PathType.WATER, 0.0F);
+		this.setPathfindingMalus(PathType.WALKABLE, -1.0F);
 		this.moveControl = new BoatMoveControl(this);
 		this.navigation = new PiratNavigation(this, this.level());
 	}
 
 	private ItemStack generateBanner() {
 		ItemStack itemstack = new ItemStack(Items.BLACK_BANNER);
-		CompoundTag tag = itemstack.getOrCreateTagElement("BlockEntityTag");
-		ListTag list = new BannerPattern.Builder().addPattern(RatsBannerPatternRegistry.RAT_AND_CROSSBONES_BANNER.getKey(), DyeColor.WHITE).toListTag();
-		tag.put("Patterns", list);
+		this.level().registryAccess().registryOrThrow(Registries.BANNER_PATTERN).getHolder(RatsBannerPatternRegistry.RAT_AND_CROSSBONES_BANNER).ifPresent(pattern ->
+				itemstack.set(DataComponents.BANNER_PATTERNS, new BannerPatternLayers.Builder().add(pattern, DyeColor.WHITE).build()));
 		return itemstack;
 	}
 
@@ -107,10 +108,6 @@ public class PiratBoat extends Mob {
 
 	}
 
-	@Override
-	public boolean canBreatheUnderwater() {
-		return true;
-	}
 
 
 	@Override
@@ -171,9 +168,9 @@ public class PiratBoat extends Mob {
 	}
 
 	@Override
-	protected void defineSynchedData() {
-		super.defineSynchedData();
-		this.getEntityData().define(FIRING, false);
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(FIRING, false);
 	}
 
 	public boolean isFiring() {

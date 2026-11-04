@@ -10,8 +10,8 @@ import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +27,8 @@ public class RatlantisEntityTags extends EntityTypeTagsProvider {
 	@Override
 	protected void addTags(HolderLookup.Provider provider) {
 		tag(RatsEntityTags.RATS).add(RatlantisEntityRegistry.GHOST_PIRAT.get(), RatlantisEntityRegistry.PIRAT.get());
+		//pirat boats used to override canBreatheUnderwater, its a tag now
+		tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(RatlantisEntityRegistry.PIRAT_BOAT.get());
 
 		tag(RatsEntityTags.RAT_MOUNTS).add(RatlantisEntityRegistry.RAT_MOUNT_AUTOMATON.get(), RatlantisEntityRegistry.RAT_MOUNT_BIPLANE.get());
 

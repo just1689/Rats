@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import com.github.alexthe666.rats.server.misc.StackData;
 
 public class RatPapersItem extends Item {
 
@@ -34,19 +35,19 @@ public class RatPapersItem extends Item {
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flag) {
 		if (!isEntityBound(stack)) {
 			tooltip.add(Component.translatable("item.rats.rat_papers.desc0").withStyle(ChatFormatting.GRAY));
 			tooltip.add(Component.translatable("item.rats.rat_papers.desc1").withStyle(ChatFormatting.GRAY));
 		}
 		tooltip.add(Component.translatable("item.rats.rat_papers.desc2").withStyle(ChatFormatting.GRAY));
-		if (stack.getTag() != null && !stack.getTag().isEmpty()) {
+		if (StackData.has(stack)) {
 			String ratName = I18n.get("entity.rats.tamed_rat");
-			String entity = stack.getTag().getString("RatName");
+			String entity = StackData.getOrEmpty(stack).getString("RatName");
 			Component rat = Component.empty();
-			if (stack.getTag().hasUUID("RatUUID")) {
+			if (StackData.getOrEmpty(stack).hasUUID("RatUUID")) {
 				if (entity.isEmpty()) {
-					rat = Component.literal(ratName + " (" + stack.getTag().getUUID("RatUUID") + ")").withStyle(ChatFormatting.GRAY);
+					rat = Component.literal(ratName + " (" + StackData.getOrEmpty(stack).getUUID("RatUUID") + ")").withStyle(ChatFormatting.GRAY);
 				} else {
 					rat = Component.literal(entity).withStyle(ChatFormatting.GRAY);
 				}
@@ -56,12 +57,12 @@ public class RatPapersItem extends Item {
 	}
 
 	public static boolean isEntityBound(ItemStack stack) {
-		return stack.getOrCreateTag().hasUUID("RatUUID");
+		return StackData.getOrEmpty(stack).hasUUID("RatUUID");
 	}
 
 	@Override
 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-		CompoundTag nbt = stack.getOrCreateTag();
+		CompoundTag nbt = StackData.getOrEmpty(stack);
 		if (target instanceof Player transferTo) {
 			try {
 				if (nbt.hasUUID("RatUUID")) {
@@ -90,7 +91,7 @@ public class RatPapersItem extends Item {
 				nbt.putString("RatName", rat.getCustomName().getString());
 			}
 			nbt.putUUID("RatUUID", rat.getUUID());
-			stack.setTag(nbt);
+			StackData.set(stack, nbt);
 
 			return InteractionResult.sidedSuccess(player.level().isClientSide());
 		}

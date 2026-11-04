@@ -1,0 +1,7 @@
+{
+  "type": "rats:archeologist",
+  "ingredient": {
+    "item": "minecraft:phantom_membrane"
+  },
+  "result": "rats:ghost_pirat_ectoplasm"
+}

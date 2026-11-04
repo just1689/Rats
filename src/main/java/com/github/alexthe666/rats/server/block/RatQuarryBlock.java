@@ -24,9 +24,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import net.minecraft.world.item.Item;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.ItemInteractionResult;
 
 @SuppressWarnings("deprecation")
 public class RatQuarryBlock extends BaseEntityBlock {
+
+	public static final MapCodec<RatQuarryBlock> CODEC = simpleCodec(RatQuarryBlock::new);
+
+	@Override
+	protected MapCodec<RatQuarryBlock> codec() {
+		return CODEC;
+	}
 
 	public RatQuarryBlock(BlockBehaviour.Properties properties) {
 		super(properties);
@@ -60,21 +70,21 @@ public class RatQuarryBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack usedStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if (!player.isCrouching()) {
 			if (level.isClientSide()) {
-				return InteractionResult.SUCCESS;
+				return ItemInteractionResult.SUCCESS;
 			} else {
 				player.openMenu(state.getMenuProvider(level, pos));
-				return InteractionResult.CONSUME;
+				return ItemInteractionResult.CONSUME;
 			}
 
 		}
-		return InteractionResult.FAIL;
+		return ItemInteractionResult.FAIL;
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, @Nullable BlockGetter level, List<Component> tooltip, TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext level, List<Component> tooltip, TooltipFlag flagIn) {
 		tooltip.add(Component.translatable("block.rats.rat_quarry.desc0").withStyle(ChatFormatting.GRAY));
 		tooltip.add(Component.translatable("block.rats.rat_quarry.desc1").withStyle(ChatFormatting.GRAY));
 	}

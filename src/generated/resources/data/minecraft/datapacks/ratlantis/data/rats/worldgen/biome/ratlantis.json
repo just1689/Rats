@@ -121,7 +121,7 @@
         "weight": 5
       }
     ],
-    "rats": [
+    "rats:rats": [
       {
         "type": "rats:rat",
         "maxCount": 4,

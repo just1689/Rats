@@ -18,8 +18,17 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.world.level.LevelReader;
 
 public class MilkCauldronBlock extends AbstractCauldronBlock implements EntityBlock {
+
+	public static final MapCodec<MilkCauldronBlock> CODEC = simpleCodec(MilkCauldronBlock::new);
+
+	@Override
+	protected MapCodec<MilkCauldronBlock> codec() {
+		return CODEC;
+	}
 
 	public MilkCauldronBlock(BlockBehaviour.Properties properties) {
 		super(properties, RatsCauldronRegistry.MILK);
@@ -36,7 +45,7 @@ public class MilkCauldronBlock extends AbstractCauldronBlock implements EntityBl
 	}
 
 	@Override
-	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		return new ItemStack(Items.CAULDRON);
 	}
 

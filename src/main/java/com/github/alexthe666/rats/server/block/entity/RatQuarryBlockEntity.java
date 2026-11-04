@@ -25,19 +25,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.IntStream;
+import net.minecraft.core.HolderLookup;
 
 public class RatQuarryBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer {
 	private static final int[] STACKS = IntStream.range(0, 64).toArray();
-	private final LazyOptional<? extends IItemHandler>[] handlers = SidedInvWrapper.create(this, Direction.UP, Direction.DOWN);
 	private NonNullList<ItemStack> inventory = NonNullList.withSize(64, ItemStack.EMPTY);
 	private int tick;
 
@@ -127,15 +125,15 @@ public class RatQuarryBlockEntity extends BaseContainerBlockEntity implements Wo
 		}
 	}
 
-	public void load(CompoundTag compound) {
-		super.load(compound);
+	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.loadAdditional(compound, registries);
 		this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-		ContainerHelper.loadAllItems(compound, this.inventory);
+		ContainerHelper.loadAllItems(compound, this.inventory, registries);
 	}
 
-	public void saveAdditional(CompoundTag compound) {
-		super.saveAdditional(compound);
-		ContainerHelper.saveAllItems(compound, this.inventory);
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
+		super.saveAdditional(compound, registries);
+		ContainerHelper.saveAllItems(compound, this.inventory, registries);
 	}
 
 	@Override
@@ -159,14 +157,6 @@ public class RatQuarryBlockEntity extends BaseContainerBlockEntity implements Wo
 		return false;
 	}
 
-	@NotNull
-	@Override
-	public <T> LazyOptional<T> getCapability(Capability<T> capability, @Nullable Direction facing) {
-		if (!this.remove && facing != null && capability == ForgeCapabilities.ITEM_HANDLER) {
-			return handlers[0].cast();
-		}
-		return super.getCapability(capability, facing);
-	}
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
@@ -174,12 +164,12 @@ public class RatQuarryBlockEntity extends BaseContainerBlockEntity implements Wo
 	}
 
 	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
-		this.handleUpdateTag(packet.getTag());
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
+		this.handleUpdateTag(packet.getTag(), registries);
 	}
 
-	public CompoundTag getUpdateTag() {
-		return this.saveWithId();
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+		return this.saveWithId(registries);
 	}
 
 	public int getRadius() {
@@ -228,5 +218,15 @@ public class RatQuarryBlockEntity extends BaseContainerBlockEntity implements Wo
 			stairPos = stairPos.relative(buildDir);
 		}
 		return stairPos;
+	}
+
+	@Override
+	protected NonNullList<ItemStack> getItems() {
+		return this.inventory;
+	}
+
+	@Override
+	protected void setItems(NonNullList<ItemStack> items) {
+		this.inventory = items;
 	}
 }

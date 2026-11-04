@@ -1,8 +1,7 @@
 {
   "required": true,
   "package": "com.github.alexthe666.rats.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "refmap": "rats.refmap.json",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PiglinAiMixin",
     "WardenMixin"
