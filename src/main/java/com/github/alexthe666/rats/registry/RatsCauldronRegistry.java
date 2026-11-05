@@ -15,7 +15,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.Map;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface RatsCauldronRegistry extends CauldronInteraction {
 
@@ -24,19 +29,45 @@ public interface RatsCauldronRegistry extends CauldronInteraction {
 	CauldronInteraction.InteractionMap BLUE_CHEESE = CauldronInteraction.newInteractionMap("rats_blue_cheese");
 	CauldronInteraction.InteractionMap NETHER_CHEESE = CauldronInteraction.newInteractionMap("rats_nether_cheese");
 
-	static void init() {
-		EMPTY.map().put(Items.MILK_BUCKET, (state, level, pos, player, hand, stack) -> {
-			if (!level.isClientSide()) {
-				player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-				player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.BUCKET)));
-				player.awardStat(Stats.USE_CAULDRON);
-				level.setBlockAndUpdate(pos, RatsBlockRegistry.MILK_CAULDRON.get().defaultBlockState());
-				level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-				level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-			}
-			return ItemInteractionResult.sidedSuccess(level.isClientSide());
-		});
+	TagKey<Block> HERBS_AND_HARVEST_HEAT_SOURCES = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath("herbsandharvest", "heat_sources"));
 
+	CauldronInteraction FILL_MILK = (state, level, pos, player, hand, stack) -> {
+		if (!level.isClientSide()) {
+			player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+			player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.BUCKET)));
+			player.awardStat(Stats.USE_CAULDRON);
+			level.setBlockAndUpdate(pos, RatsBlockRegistry.MILK_CAULDRON.get().defaultBlockState());
+			level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+			level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
+		}
+		return ItemInteractionResult.sidedSuccess(level.isClientSide());
+	};
+
+	/**
+	 * Registers the milk bucket -> milk cauldron interaction. This must run after every other mod's common setup,
+	 * since other mods (such as Herbs and Harvest) also claim milk buckets on empty cauldrons and the last one to register wins.
+	 * If another mod already claimed it, Rats only takes over for unheated cauldrons and hands heated ones back to that mod.
+	 */
+	static void registerMilkBucket() {
+		CauldronInteraction previous = EMPTY.map().containsKey(Items.MILK_BUCKET) ? EMPTY.map().get(Items.MILK_BUCKET) : null;
+		if (previous == null) {
+			EMPTY.map().put(Items.MILK_BUCKET, FILL_MILK);
+			return;
+		}
+		EMPTY.map().put(Items.MILK_BUCKET, (state, level, pos, player, hand, stack) -> {
+			if (isHeated(level.getBlockState(pos.below()))) {
+				return previous.interact(state, level, pos, player, hand, stack);
+			}
+			return FILL_MILK.interact(state, level, pos, player, hand, stack);
+		});
+	}
+
+	static boolean isHeated(BlockState below) {
+		return below.is(Blocks.CAMPFIRE) || below.is(Blocks.SOUL_CAMPFIRE) || below.is(Blocks.FIRE) || below.is(Blocks.SOUL_FIRE) ||
+			below.is(Blocks.MAGMA_BLOCK) || below.is(HERBS_AND_HARVEST_HEAT_SOURCES);
+	}
+
+	static void init() {
 		MILK.map().put(Items.BUCKET, (state, level, pos, player, hand, stack) -> {
 			if (!level.isClientSide()) {
 				player.awardStat(Stats.ITEM_USED.get(stack.getItem()));

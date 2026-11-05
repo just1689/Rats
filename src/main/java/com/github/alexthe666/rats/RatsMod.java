@@ -51,6 +51,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -122,6 +123,7 @@ public class RatsMod {
 		bus.addListener(RatsCapabilityRegistry::registerCapabilities);
 		bus.addListener(this::reloadConfigs);
 		bus.addListener(this::setup);
+		bus.addListener(this::loadComplete);
 		NeoForge.EVENT_BUS.addListener(this::addPetShops);
 		bus.addListener(this::addRatlantisDatapack);
 	}
@@ -142,6 +144,11 @@ public class RatsMod {
 			RatConfig.bakeClient();
 			LOGGER.debug("Reloading Rats Client Config!");
 		}
+	}
+
+	//runs after every mod's common setup, so Rats' milk bucket interaction can't be silently overwritten by another mod
+	private void loadComplete(FMLLoadCompleteEvent event) {
+		event.enqueueWork(RatsCauldronRegistry::registerMilkBucket);
 	}
 
 	private void setup(FMLCommonSetupEvent event) {
