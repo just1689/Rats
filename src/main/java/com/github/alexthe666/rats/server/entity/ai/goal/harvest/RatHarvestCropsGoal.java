@@ -68,13 +68,18 @@ public class RatHarvestCropsGoal extends BaseRatHarvestGoal {
 			this.rat.getNavigation().moveTo(this.getTargetBlock().getX() + 0.5D, this.getTargetBlock().getY(), this.getTargetBlock().getZ() + 0.5D, 1.25D);
 			double distance = this.rat.getRatDistanceCenterSq(this.getTargetBlock().getX(), this.getTargetBlock().getY(), this.getTargetBlock().getZ());
 			if (distance < this.rat.getRatHarvestDistance(0.0D)) {
-				if (block.is(BlockTags.CROPS) || block.is(Blocks.NETHER_WART)) {
+				if (isCrop(block) || block.is(Blocks.NETHER_WART)) {
 					if (block.getBlock() instanceof CropBlock crop && !crop.isMaxAge(block)) {
 						this.setTargetBlock(null);
 						this.stop();
 						return;
 					}
 
+					//break the top half of 2 block tall crops first, some mods only drop its loot when a player breaks the bottom half
+					BlockPos above = this.getTargetBlock().above();
+					if (block.getBlock() instanceof CropBlock && this.rat.level().getBlockState(above).getBlock() instanceof CropBlock) {
+						this.rat.level().destroyBlock(above, true);
+					}
 					this.rat.level().destroyBlock(this.getTargetBlock(), true);
 					if ((!RatConfig.ratsBreakBlockOnHarvest || RatUpgradeUtils.hasUpgrade(this.rat, RatsItemRegistry.RAT_UPGRADE_REPLANTER.get()))) {
 						if (block.getBlock() instanceof BonemealableBlock) {
@@ -114,8 +119,10 @@ public class RatHarvestCropsGoal extends BaseRatHarvestGoal {
 		if (!RatUtils.canRatBreakBlock(this.rat.level(), pos, this.rat)) {
 			return false;
 		}
-		if (state.is(BlockTags.CROPS)) {
+		if (isCrop(state)) {
 			if (state.getBlock() instanceof CropBlock crop && !crop.isMaxAge(state)) return false;
+			//the top half of a 2 block tall crop (e.g. Herbs and Harvest eggplant) is harvested along with the bottom half
+			if (state.getBlock() instanceof CropBlock && level.getBlockState(pos.below()).getBlock() instanceof CropBlock) return false;
 			if (!(state.getBlock() instanceof StemBlock) && !(state.getBlock() instanceof AttachedStemBlock)) {
 				return true;
 			}
@@ -126,5 +133,10 @@ public class RatHarvestCropsGoal extends BaseRatHarvestGoal {
 		}
 
 		return (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) > 1) || CaveVines.hasGlowBerries(state);
+	}
+
+	//not every mod adds its crops to the minecraft:crops tag (e.g. Herbs and Harvest), so any CropBlock counts too
+	private static boolean isCrop(BlockState state) {
+		return state.is(BlockTags.CROPS) || state.getBlock() instanceof CropBlock;
 	}
 }
