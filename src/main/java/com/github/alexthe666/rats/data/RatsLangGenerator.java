@@ -245,6 +245,7 @@ public class RatsLangGenerator extends LanguageProvider {
 		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_ENDER, "Rat Upgrade: Ender", "Rats gain the ability to teleport at will", "Allows extremely fast rat transport", "Turns rats black with glowing purple eyes");
 		this.addItem(RatsItemRegistry.RAT_UPGRADE_EXTREME_ENERGY, "Rat Upgrade: Extreme Energy Transfer");
 		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_FARMER, "Rat Upgrade: Planter", "Rats will plant any held seeds or saplings when set to the 'Harvest' command", "Rats will use bonemeal on crops and saplings as well");
+		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_KELP_FARMER, "Rat Upgrade: Kelp Farmer", "Rats will swim down and cut kelp that has stopped growing when set to the 'Harvest' command", "Requires the 'Aquatic' upgrade. The bottom of each kelp plant is left behind to regrow");
 		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_FISHERMAN, "Rat Upgrade: Fisherman", "Rats will move to water sources and start fishing", "Rats can catch fish, junk and treasure items");
 		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_FLIGHT, "Rat Upgrade: Flight", "Rats gain the ability to flap rudimentary wings and fly", "Rats will move faster while flying and will not be bound the the constraints of land based travel", "Pretty much turns rats into pigeons");
 		this.addItemWithDesc(RatsItemRegistry.RAT_UPGRADE_GARDENER, "Rat Upgrade: Gardener", "Rats will break nearby tall grass and flowers when set to the 'Harvest' command");

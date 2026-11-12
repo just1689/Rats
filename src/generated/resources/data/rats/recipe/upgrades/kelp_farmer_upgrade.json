@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": {
+      "item": "minecraft:kelp"
+    },
+    "S": {
+      "item": "minecraft:shears"
+    },
+    "U": {
+      "item": "rats:rat_upgrade_basic"
+    }
+  },
+  "pattern": [
+    "KSK",
+    "KUK",
+    "KKK"
+  ],
+  "result": {
+    "count": 1,
+    "id": "rats:rat_upgrade_kelp_farmer"
+  }
+}

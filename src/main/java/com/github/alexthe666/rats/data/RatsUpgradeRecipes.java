@@ -314,6 +314,15 @@ public class RatsUpgradeRecipes extends RecipeProvider {
 				.define('F', ItemTags.FISHES).unlockedBy("has_fish", has(ItemTags.FISHES))
 				.save(consumer, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "upgrades/fisherman_upgrade"));
 
+		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RatsItemRegistry.RAT_UPGRADE_KELP_FARMER.get())
+				.pattern("KSK")
+				.pattern("KUK")
+				.pattern("KKK")
+				.define('K', Items.KELP).unlockedBy("has_kelp", has(Items.KELP))
+				.define('S', Items.SHEARS).unlockedBy("has_shears", has(Items.SHEARS))
+				.define('U', RatsItemRegistry.RAT_UPGRADE_BASIC.get()).unlockedBy("has_upgrade", has(RatsItemRegistry.RAT_UPGRADE_BASIC.get()))
+				.save(consumer, ResourceLocation.fromNamespaceAndPath(RatsMod.MODID, "upgrades/kelp_farmer_upgrade"));
+
 		ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RatsItemRegistry.RAT_UPGRADE_TICK_ACCELERATOR.get())
 				.pattern("LTL")
 				.pattern("CUC")

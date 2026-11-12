@@ -1,4 +1,4 @@
-// 1.21.1	2026-11-04T20:33:10.398131	Recipes
+// 1.21.1	2026-11-12T14:56:25.020827	Recipes
 e18db1fd4bef7b393a3588180ad43df199386024 data/minecraft/recipe/demon_swap_recipe.json
 53058d16f4ae872d620a97914a75e2c0764ec4c9 data/rats/advancement/recipes/building_blocks/auto_curdler.json
 85e4bbd0786e3cdce1948063790903cc80e73a78 data/rats/advancement/recipes/building_blocks/block_of_blue_cheese.json
@@ -179,6 +179,7 @@ b0a882ecead6fa165c511532fadda050feef201a data/rats/advancement/recipes/misc/upgr
 39a183ceccf96b45e3d8b6f5189c479c8dc274ec data/rats/advancement/recipes/misc/upgrades/health_upgrade.json
 744b4d484634251212f60792be0d44b5716c4530 data/rats/advancement/recipes/misc/upgrades/idol_upgrade.json
 01a64b04bf9fd7c81abab244ae36bd2c16bdf0f5 data/rats/advancement/recipes/misc/upgrades/jury_rigged_upgrade.json
+cfb5e48a81f1c41dc47381277ee16da7ca184444 data/rats/advancement/recipes/misc/upgrades/kelp_farmer_upgrade.json
 640d577df728ec8867667ae1b885102555bef745 data/rats/advancement/recipes/misc/upgrades/lumberjack_upgrade.json
 19bf434b4cfc38eebd0eb230184fdc42fe366682 data/rats/advancement/recipes/misc/upgrades/milker_upgrade.json
 2dff61c4d88c0f80e43cd13bdd43f00461432949 data/rats/advancement/recipes/misc/upgrades/ore_doubling_upgrade.json
@@ -399,6 +400,7 @@ f43e6a09adbd7bcaafec11b5917bb5d99fb1146c data/rats/recipe/upgrades/flute_upgrade
 52fbded5c21085b83736d41459653e5a84ee7fb6 data/rats/recipe/upgrades/health_upgrade.json
 b9838dea52d97d7f25e13a9a7b6a33bf15a144bd data/rats/recipe/upgrades/idol_upgrade.json
 d30935703479158faef15747a6fd3a17c459a926 data/rats/recipe/upgrades/jury_rigged_upgrade.json
+477b3f8a1cef262fed2ce51c0afd41221cbf38d6 data/rats/recipe/upgrades/kelp_farmer_upgrade.json
 38f07d7bb55dddb9c0174b12228ba1e2346e7ead data/rats/recipe/upgrades/lumberjack_upgrade.json
 9cb7a0708769515582f7fcc57bf8c557e0ff290b data/rats/recipe/upgrades/milker_upgrade.json
 448913e05d0c498e6afec38e57cf3dd540ccfef2 data/rats/recipe/upgrades/ore_doubling_upgrade.json

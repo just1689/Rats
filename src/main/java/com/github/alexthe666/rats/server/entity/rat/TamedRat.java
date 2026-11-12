@@ -12,6 +12,7 @@ import com.github.alexthe666.rats.server.entity.RatMount;
 import com.github.alexthe666.rats.server.entity.ai.goal.*;
 import com.github.alexthe666.rats.server.entity.ai.goal.harvest.RatHarvestCropsGoal;
 import com.github.alexthe666.rats.server.entity.ai.navigation.control.*;
+import com.github.alexthe666.rats.server.entity.ai.navigation.navigation.RatAquaticNavigation;
 import com.github.alexthe666.rats.server.entity.ai.navigation.navigation.EtherealRatNavigation;
 import com.github.alexthe666.rats.server.entity.ai.navigation.navigation.RatFlightNavigation;
 import com.github.alexthe666.rats.server.entity.ai.navigation.navigation.RatNavigation;
@@ -62,12 +63,13 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.LookControl;
+import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
-import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.DyeItem;
@@ -85,6 +87,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.MoverType;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -299,6 +302,12 @@ public class TamedRat extends InventoryRat {
 	}
 
 	public void switchNavigator(int type) {
+		//swimming steers up and down by pitching the rat, which the regular look control resets to level every tick
+		if (type == 3 && !(this.lookControl instanceof SmoothSwimmingLookControl)) {
+			this.lookControl = new SmoothSwimmingLookControl(this, 10);
+		} else if (type != 3 && this.lookControl instanceof SmoothSwimmingLookControl) {
+			this.lookControl = new LookControl(this);
+		}
 		if (type == 0) { //tamed
 			this.moveControl = new RatMoveControl(this);
 			this.navigation = new RatNavigation(this, this.level());
@@ -312,8 +321,8 @@ public class TamedRat extends InventoryRat {
 			this.navigation = new RatNavigation(this, this.level());
 			this.navigatorType = 2;
 		} else if (type == 3) { //aquatic
-			this.moveControl = new SmoothSwimmingMoveControl(this, 360, 360, 10.0F, 1.0F, true);
-			this.navigation = new AmphibiousPathNavigation(this, this.level());
+			this.moveControl = new SmoothSwimmingMoveControl(this, 360, 360, 0.1F, 1.0F, true);
+			this.navigation = new RatAquaticNavigation(this, this.level());
 			this.navigatorType = 3;
 		} else if (type == 4) { //ethereal
 			this.moveControl = new EtherealRatMoveControl(this);
@@ -572,6 +581,19 @@ public class TamedRat extends InventoryRat {
 	@Override
 	public boolean fireImmune() {
 		return this.getRespawnCountdown() > 0 || super.fireImmune();
+	}
+
+	@Override
+	public void travel(Vec3 travelVector) {
+		//rats with the 'Aquatic' upgrade swim under their own power, like axolotls. Vanilla water movement ignores the swim speed and crawls at a fraction of a block per second,
+		//which made diving to the bottom of a pool (e.g. to cut kelp) take over a minute
+		if (this.navigatorType == 3 && this.isControlledByLocalInstance() && this.isInWater()) {
+			this.moveRelative(this.getSpeed(), travelVector);
+			this.move(MoverType.SELF, this.getDeltaMovement());
+			this.setDeltaMovement(this.getDeltaMovement().scale(0.9D));
+		} else {
+			super.travel(travelVector);
+		}
 	}
 
 	@Override
