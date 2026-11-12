@@ -21,11 +21,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RatHarvestTreesGoal extends BaseRatHarvestGoal {
+	//if the rat can't get close enough to a tree to start chopping within this time, it gives up on it (e.g. the tree is fenced or walled off)
+	private static final int MAX_TICKS_TO_REACH_TREE = 600;
+	//and leaves that tree alone for this long, so it works on other trees instead of walking back to the same one
+	private static final int SKIP_UNREACHABLE_TREE_TICKS = 2400;
+
 	private final TamedRat rat;
+	private final Map<BlockPos, Long> skippedTrees = new HashMap<>();
+	private int ticksWithoutReaching;
 	private int breakingTime;
 	private int previousBreakProgress;
 	private int treeSize;
@@ -50,8 +59,11 @@ public class RatHarvestTreesGoal extends BaseRatHarvestGoal {
 
 	private void resetTarget() {
 		Level level = this.rat.level();
+		long now = level.getGameTime();
+		this.skippedTrees.values().removeIf(until -> until <= now);
 		int RADIUS = this.rat.getRadius();
 		for (BlockPos pos : BlockPos.betweenClosedStream(this.rat.getSearchCenter().offset(-RADIUS, -RADIUS, -RADIUS), this.rat.getSearchCenter().offset(RADIUS, RADIUS, RADIUS)).map(BlockPos::immutable).toList()) {
+			if (this.skippedTrees.containsKey(pos)) continue;
 			if (RatTreeUtils.isTreeLog(level.getBlockState(pos)) && level.getBlockState(pos.below()).is(BlockTags.DIRT) && (this.treeSize = RatTreeUtils.calculateLogAmount(level, pos)) > 0) {
 				Path path = this.rat.getNavigation().createPath(this.getOffsetToAirPos(pos), 1);
 				if (path != null && RatUtils.canRatBreakBlock(this.rat.level(), pos, this.rat)) {
@@ -65,6 +77,7 @@ public class RatHarvestTreesGoal extends BaseRatHarvestGoal {
 	@Override
 	public void start() {
 		super.start();
+		this.ticksWithoutReaching = 0;
 		this.stumpBlocks = RatTreeUtils.getAllStumpBlocks(this.rat.level(), this.getTargetBlock(), this.rat.level().getBlockState(this.getTargetBlock()));
 	}
 
@@ -100,6 +113,11 @@ public class RatHarvestTreesGoal extends BaseRatHarvestGoal {
 		this.rat.getNavigation().moveTo(offsetToAirPos.getX() + 0.5D, offsetToAirPos.getY(), offsetToAirPos.getZ() + 0.5D, 1.25D);
 		if (RatTreeUtils.isTreeLog(this.rat.level().getBlockState(this.getTargetBlock()))) {
 			double distance = this.rat.getRatDistanceCenterSq(this.getTargetBlock().getX(), this.getTargetBlock().getY(), this.getTargetBlock().getZ());
+			if (distance >= this.rat.getRatHarvestDistance(0.0D) && ++this.ticksWithoutReaching > this.adjustedTickDelay(MAX_TICKS_TO_REACH_TREE)) {
+				this.skippedTrees.put(this.getTargetBlock(), this.rat.level().getGameTime() + SKIP_UNREACHABLE_TREE_TICKS);
+				this.stop();
+				return;
+			}
 			if (distance < this.rat.getRatHarvestDistance(0.0D)) {
 				this.rat.level().broadcastEntityEvent(this.rat, (byte) 85);
 				this.rat.crafting = true;
